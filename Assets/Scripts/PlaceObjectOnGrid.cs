@@ -45,6 +45,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
             gridMousePosition = mousePosition;
             foreach (var node in nodes)
             {
+                // mouse on empty grid
                 if (node.cellPosition == mousePosition && node.isPlacable)
                 {
                     if (Input.GetMouseButtonUp(0) && playerHolding != null)
@@ -55,9 +56,12 @@ public class PlaceObjectOnGrid : MonoBehaviour
                         node.thingPlaced = playerHolding;
                         playerHolding = null;
                     }
+                    
                 }
+                // mouse on occupied grid 
                 else if (node.cellPosition == mousePosition && !node.isPlacable)
                 {
+                    // left click on machine
                     if (Input.GetMouseButtonUp(0) && playerHolding == null)
                     {
                         playerHolding = node.thingPlaced;
@@ -66,6 +70,14 @@ public class PlaceObjectOnGrid : MonoBehaviour
                         playerHolding.GetComponent<ObjFollowMouse>().isOnGrid = false;
                         //playerHolding.position = node.cellPosition + new Vector3(0, 0.5f, 0);
                     }
+                    // right click on machine
+                    else if (Input.GetMouseButtonUp(1) && playerHolding == null)
+                    {
+                        print("Open config for this machine");
+                        var machineToConfig = node.thingPlaced;
+                        //playerHolding.position = node.cellPosition + new Vector3(0, 0.5f, 0);
+                    }
+
                 }
                 /*
                 else if (node.cellPosition != mousePosition)
