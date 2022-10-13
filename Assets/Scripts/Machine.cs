@@ -13,43 +13,6 @@ public enum MachineType
     Other
 }
 
-public enum MachineSubType
-{
-    #region Variable
-    VariableIn,
-    VariableOut,
-    #endregion Variable
-    #region NumericOper
-    NumericAdd,
-    NumericSub,
-    NumericMul,
-    NumericDiv,
-    NumericMod,
-    #endregion NumericOper
-    #region ComparisonOper
-    ComparisonGreaterThan,
-    ComparisonGreaterThanOrEqual,
-    ComparisonLessThan,
-    ComparisonLessThanOrEqual,
-    ComparisonEqual,
-    ComparisonNotEqual,
-    #endregion ComparisonOper
-    #region LogicalOper
-    LogicalAnd,
-    LogicalOr,
-    LogicalXor,
-    LogicalNot,
-    #endregion LogicalOper
-    #region Conditional
-    ConditionalIf,
-    #endregion Conditional
-    #region Loop
-    LoopFor,
-    LoopWhile,
-    #endregion Loop
-    Other
-}
-
 public enum GateType
 {
     Entrance,
@@ -75,19 +38,31 @@ public enum Direction
 
 public class Gate
 {
-    public Direction Direction;
-    public GateType GateType;
-    public List<DataType> DataTypeList;
+    public Direction direction;
+    public GateType gateType;
+    public List<DataType> dataTypeList;
 
-    public Gate(GateType gateType)
+    public Gate(GateType gt)
     {
-        GateType = gateType;
+        gateType = gt;
     }
 }
 
 public class Machine : MonoBehaviour
 {
     public MachineType type;
-    [HideInInspector]
-    public List<Gate> gateList;
+    
+    Dictionary<Direction, Gate> gates;
+
+    public virtual void AssignGateDir(Gate g, Direction d)
+    {
+        if (gates.ContainsKey(d))
+        {
+            gates[d].direction = g.direction;
+        }
+        else
+        {
+            gates.Add(d, g);
+        }
+    }
 }

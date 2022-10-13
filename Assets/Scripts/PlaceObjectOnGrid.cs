@@ -6,6 +6,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
 {
     public Transform gridCellPrefab;
     public Transform cube;
+    public Transform gridHolder;
 
     public Transform playerHolding;
     public Vector3 smoothMousePosition;
@@ -49,7 +50,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
                     {
                         node.isPlacable = false;
                         playerHolding.GetComponent<ObjFollowMouse>().isOnGrid = true;
-                        playerHolding.position = node.cellPosition + new Vector3(0, 0.5f, 0);
+                        playerHolding.position = node.cellPosition + new Vector3(0, 0.4075f, 0);
                         node.thingPlaced = playerHolding;
                         playerHolding = null;
                     }
@@ -95,7 +96,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
             {
                 print("Creating");
                 Vector3 worldPosition = new Vector3(i, 0, j);
-                Transform obj = Instantiate(gridCellPrefab, worldPosition, Quaternion.identity);
+                Transform obj = Instantiate(gridCellPrefab, worldPosition, Quaternion.identity, gridHolder);
                 obj.name = "Cell " + name;
                 nodes[i, j] = new Node(isPlacable: true, worldPosition, obj,null);
                 name++;
