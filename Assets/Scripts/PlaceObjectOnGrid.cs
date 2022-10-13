@@ -35,6 +35,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
     void GetMousePositionOnGrid()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
         if (plane.Raycast(ray, out var enter))
         {
             mousePosition = ray.GetPoint(enter);
@@ -61,10 +62,18 @@ public class PlaceObjectOnGrid : MonoBehaviour
                     {
                         playerHolding = node.thingPlaced;
                         node.isPlacable = true;
+                        node.thingPlaced = null;
                         playerHolding.GetComponent<ObjFollowMouse>().isOnGrid = false;
                         //playerHolding.position = node.cellPosition + new Vector3(0, 0.5f, 0);
                     }
                 }
+                /*
+                else if (node.cellPosition != mousePosition)
+                {
+                    Grid.currentlySelected?.SendMessage("ResetMat");
+                    Grid.currentlySelected = null;
+                }
+                */
             }
         }
     }
@@ -85,6 +94,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
             playerHolding = null;
         }
     }
+
     private void CreateGrid()
     {
         nodes = new Node[width, height];
@@ -94,7 +104,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                print("Creating");
+                // print("Creating");
                 Vector3 worldPosition = new Vector3(i, 0, j);
                 Transform obj = Instantiate(gridCellPrefab, worldPosition, Quaternion.identity, gridHolder);
                 obj.name = "Cell " + name;
@@ -102,6 +112,16 @@ public class PlaceObjectOnGrid : MonoBehaviour
                 name++;
             }
         }
+    }
+
+    private Node GetNode(Transform t)
+    {
+        Node node = null;
+        foreach (Node n in nodes)
+        {
+            if (n.obj == t || n.thingPlaced == t) node = n;
+        }
+        return node;
     }
 }
 

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 424960458827038261}
   - component: {fileID: 3950295933938867187}
   - component: {fileID: 5173776918916740392}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ExtendBelt
   m_TagString: Untagged
   m_Icon: {fileID: 0}

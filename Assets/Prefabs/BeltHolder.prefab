@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1415336967396370072}
   - component: {fileID: 1013899109996278428}
   - component: {fileID: 7566773350045111905}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Belt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106,7 +106,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2017426636388234752}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BeltHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}

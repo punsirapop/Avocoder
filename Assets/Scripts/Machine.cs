@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 
 public enum MachineType
@@ -51,7 +52,9 @@ public class Gate
 public class Machine : MonoBehaviour
 {
     public MachineType type;
-    
+
+    [SerializeField] GameObject assignedGrid;
+
     Dictionary<Direction, Gate> gates;
 
     public virtual void AssignGateDir(Gate g, Direction d)
@@ -64,5 +67,12 @@ public class Machine : MonoBehaviour
         {
             gates.Add(d, g);
         }
+    }
+
+    public virtual void AssignThis()
+    {
+        RaycastHit hit;
+        Physics.Raycast(transform.position, new Vector3(0, -10, 0), out hit);
+        hit.collider.gameObject.SendMessage("AddMe", gameObject);
     }
 }
