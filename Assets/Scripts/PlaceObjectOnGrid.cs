@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class PlaceObjectOnGrid : MonoBehaviour
 {
+    public static PlaceObjectOnGrid Instance;
+
     public Transform gridCellPrefab;
     public Transform cube;
     public Transform gridHolder;
 
     public Transform playerHolding;
+    public Transform selectedMachineForConfig;
     public Vector3 smoothMousePosition;
     public Vector3 gridMousePosition;
     [SerializeField] private int height;
@@ -18,6 +21,15 @@ public class PlaceObjectOnGrid : MonoBehaviour
     public Node[,] nodes;
     private Plane plane;
 
+    public GameObject configTab;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -74,7 +86,8 @@ public class PlaceObjectOnGrid : MonoBehaviour
                     else if (Input.GetMouseButtonUp(1) && playerHolding == null)
                     {
                         print("Open config for this machine");
-                        var machineToConfig = node.thingPlaced;
+                        selectedMachineForConfig = node.thingPlaced;
+                        configTab.SetActive(true);
                         //playerHolding.position = node.cellPosition + new Vector3(0, 0.5f, 0);
                     }
 

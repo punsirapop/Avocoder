@@ -16,6 +16,7 @@ public enum MachineType
 
 public enum GateType
 {
+    None,
     Entrance,
     Exit
 }
@@ -30,7 +31,6 @@ public enum DataType
 
 public enum Direction
 {
-    None,
     North,
     South,
     West,
@@ -55,7 +55,7 @@ public class Machine : MonoBehaviour
 
     [SerializeField] GameObject assignedGrid;
 
-    Dictionary<Direction, Gate> gates;
+    Dictionary<Direction, Gate> gates = new Dictionary<Direction, Gate>();
 
     public virtual void AssignGateDir(Gate g, Direction d)
     {
@@ -67,6 +67,32 @@ public class Machine : MonoBehaviour
         {
             gates.Add(d, g);
         }
+    }
+
+    public virtual void addGateToDirection(Gate g, Direction d)
+    {
+        if (gates.ContainsKey(d))
+        {
+            gates[d] = g;
+        }
+        else
+        {
+            gates.Add(d, g);
+        }
+    }
+
+    public virtual GateType GetGateTypeAtDir(Direction d)
+    {
+        if (gates.ContainsKey(d))
+        {
+            return gates[d].gateType;
+        }
+        else
+        {
+            AssignGateDir(new Gate(GateType.None), d);
+            return gates[d].gateType;
+        }
+        
     }
 
     public virtual void AssignThis()
