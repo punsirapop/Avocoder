@@ -1,3 +1,4 @@
+/*
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,7 +28,6 @@ public class ConfigComponent : MonoBehaviour
         print("North: " + selectedMachine.GetGateTypeAtDir(Direction.North));
         print("West: " + selectedMachine.GetGateTypeAtDir(Direction.West));
         updateGateDisplay();
-
     }
 
     public void closeConfig()
@@ -80,8 +80,6 @@ public class ConfigComponent : MonoBehaviour
                 dirDisplay.transform.rotation = Quaternion.Euler(new Vector3(0.0f, 0.0f, rotateAngle));
             }
         }
-
-        
     }
 
     public void toggleGate(string direction)
@@ -102,7 +100,7 @@ public class ConfigComponent : MonoBehaviour
         {
             newGateType = GateType.None;
         }
-        selectedMachine.addGateToDirection(new Gate(newGateType), directionEnum);
-
+        selectedMachine.AssignGate(new Gate(newGateType), directionEnum);
     }
 }
+*/

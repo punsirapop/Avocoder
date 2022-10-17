@@ -120,6 +120,16 @@ public class PlaceObjectOnGrid : MonoBehaviour
         }
     }
 
+    public Node GetNode(Transform t)
+    {
+        Node node = null;
+        foreach (Node n in nodes)
+        {
+            if (n.obj == t || n.thingPlaced == t) node = n;
+        }
+        return node;
+    }
+
     private void CreateGrid()
     {
         nodes = new Node[width, height];
@@ -137,16 +147,6 @@ public class PlaceObjectOnGrid : MonoBehaviour
                 name++;
             }
         }
-    }
-
-    private Node GetNode(Transform t)
-    {
-        Node node = null;
-        foreach (Node n in nodes)
-        {
-            if (n.obj == t || n.thingPlaced == t) node = n;
-        }
-        return node;
     }
 }
 
