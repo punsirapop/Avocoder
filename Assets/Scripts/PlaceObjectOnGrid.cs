@@ -108,6 +108,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
         if (playerHolding == null)
         {
             playerHolding = Instantiate(cube, mousePosition, Quaternion.identity);
+            MachineActivationManager.allMachineList.Add(playerHolding.gameObject);
         }
     }
 
@@ -115,6 +116,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
     {
         if (playerHolding != null)
         {
+            MachineActivationManager.allMachineList.Remove(playerHolding.gameObject);
             Destroy(playerHolding.gameObject);
             playerHolding = null;
         }

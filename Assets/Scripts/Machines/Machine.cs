@@ -56,6 +56,16 @@ abstract public class Machine : MonoBehaviour
     public MachineType type;
     public int[] gateNo;
 
+    // temp for debugging
+    static int created = 0;
+    public int myName = 0;
+    public int order = 1;
+    private void Awake()
+    {
+        created++;
+        myName = created;
+    }
+
     [SerializeField] GameObject[] gateModels;
 
     Dictionary<Direction, Gate> gateDict = new Dictionary<Direction, Gate>();
