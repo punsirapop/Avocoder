@@ -10,6 +10,7 @@ public enum MachineType
     Logical,
     Conditional,
     Loop,
+    If,
     Other
 }
 
