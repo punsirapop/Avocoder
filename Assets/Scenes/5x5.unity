@@ -3345,7 +3345,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridCellPrefab: {fileID: 5014578520776635048, guid: b523d7cbc42fac041aae643ddf74cc7e,
     type: 3}
-  cube: {fileID: 1822671427138694417, guid: d0a9e2ddeedd3aa4296706ef8b117430, type: 3}
+  cube: {fileID: 2017426636388234752, guid: 3b057287f3644884fb18b0b0211e196a, type: 3}
   gridHolder: {fileID: 507073629}
   playerHolding: {fileID: 0}
   selectedMachineForConfig: {fileID: 0}

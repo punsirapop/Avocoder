@@ -21,10 +21,7 @@ public class Grid : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if(currentlySelected != gameObject)
-        {
             thisMat.material = materials[0];
-        }
     }
 
     public void OnPointerDown(PointerEventData eventData)
