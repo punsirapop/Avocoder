@@ -11,8 +11,8 @@ public class NumOp : Machine
         dt.Add(DataType.Int);
         dt.Add(DataType.Float);
 
-        new Gate(GateType.Entrance, Direction.East, dt);
-        new Gate(GateType.Entrance, Direction.West, dt);
-        new Gate(GateType.Exit, Direction.South, dt);
+        AssignGate(new Gate(GateType.Entrance, Direction.East, dt), Direction.East);
+        AssignGate(new Gate(GateType.Entrance, Direction.West, dt), Direction.West);
+        AssignGate(new Gate(GateType.Exit, Direction.South, dt), Direction.South);
     }
 }

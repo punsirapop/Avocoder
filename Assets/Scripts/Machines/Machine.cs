@@ -16,9 +16,9 @@ public enum MachineType
 
 public enum GateType
 {
-    None,
     Entrance,
-    Exit
+    Exit,
+    Belt
 }
 
 public enum DataType
@@ -31,11 +31,11 @@ public enum DataType
 
 public enum Direction
 {
-    None,
+    None = -1,
     North,
+    East,
     South,
-    West,
-    East
+    West
 }
 
 public class Gate
@@ -43,33 +43,39 @@ public class Gate
     public Direction direction;
     public GateType gateType;
     public List<DataType> dataTypeList;
+    public Machine connection;
 
     public Gate(GateType gt, Direction d, List<DataType> dt)
     {
         gateType = gt;
         direction = d;
         dataTypeList = dt;
+        connection = null;
     }
 }
 
 abstract public class Machine : MonoBehaviour
 {
     public MachineType type;
-    public int[] gateNo;
+    // public int[] gateNo;
 
     // temp for debugging
     static int created = 0;
     public int myName = 0;
     public int order = 1;
+
+    public Dictionary<Direction, Gate> gateDict = new Dictionary<Direction, Gate>();
+
+    [SerializeField] Transform[] gatePos;
+    [SerializeField] Material[] gateMat;
+
     private void Awake()
     {
         created++;
         myName = created;
+
+        GenerateGate();
     }
-
-    [SerializeField] GameObject[] gateModels;
-
-    Dictionary<Direction, Gate> gateDict = new Dictionary<Direction, Gate>();
 
     public abstract void GenerateGate();
 
@@ -101,7 +107,19 @@ abstract public class Machine : MonoBehaviour
 
     public virtual void Update()
     {
+        foreach (Transform g in gatePos)
+        {
+            g.gameObject.SetActive(false);
+        }
 
+        foreach (var d in gateDict.Values)
+        {
+            if((int)d.direction != -1)
+            {
+                gatePos[(int)d.direction].gameObject.SetActive(true);
+                gatePos[(int)d.direction].GetComponent<MeshRenderer>().material = gateMat[(int)d.gateType];
+            }
+        }
     }
 
     /*

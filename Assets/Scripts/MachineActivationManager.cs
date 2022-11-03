@@ -28,10 +28,12 @@ public class MachineActivationManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        /*
         foreach (GameObject machine in allMachineList)
         {
             print(machine.GetComponent<Machine>().myName);
         }
+        */
     }
 
     // add when IF get activated

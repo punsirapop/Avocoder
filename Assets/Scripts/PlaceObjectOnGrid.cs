@@ -7,8 +7,8 @@ public class PlaceObjectOnGrid : MonoBehaviour
     public static PlaceObjectOnGrid Instance;
 
     public Transform gridCellPrefab;
-    public Transform cube;
     public Transform gridHolder;
+    public Transform[] components; 
 
     public Transform playerHolding;
     public Transform selectedMachineForConfig;
@@ -64,7 +64,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
                     {
                         node.isPlacable = false;
                         playerHolding.GetComponent<ObjFollowMouse>().isOnGrid = true;
-                        playerHolding.position = node.cellPosition + new Vector3(0, 0.4075f, 0);
+                        playerHolding.position = node.cellPosition; // + new Vector3(0, 0, 0);
                         node.thingPlaced = playerHolding;
                         playerHolding = null;
                     }
@@ -87,7 +87,9 @@ public class PlaceObjectOnGrid : MonoBehaviour
                     {
                         print("Open config for this machine");
                         selectedMachineForConfig = node.thingPlaced;
-                        configTab.SetActive(true);
+                        //configTab.SetActive(true);
+                        MachineDetailDisplay.Instance.SetSelection(node);
+                        MachineDetailDisplay.Instance.ToggleDetail();
                         //playerHolding.position = node.cellPosition + new Vector3(0, 0.5f, 0);
                     }
 
@@ -103,11 +105,11 @@ public class PlaceObjectOnGrid : MonoBehaviour
         }
     }
 
-    public void createMachineFromClick()
+    public void createMachineFromClick(int index)
     {
         if (playerHolding == null)
         {
-            playerHolding = Instantiate(cube, mousePosition, Quaternion.identity);
+            playerHolding = Instantiate(components[index], mousePosition, Quaternion.identity);
             MachineActivationManager.allMachineList.Add(playerHolding.gameObject);
         }
     }
