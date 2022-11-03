@@ -107,6 +107,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2017426636388234752}
   - component: {fileID: 7994981980764853138}
+  - component: {fileID: 2870230513174553196}
   m_Layer: 7
   m_Name: BeltHolder
   m_TagString: Untagged
@@ -143,3 +144,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOnGrid: 0
+--- !u!114 &2870230513174553196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6375103371785178048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 756cd0b303796fc47b38e83a6ce2454d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 8
+  myName: 0
+  order: 1
+  gatePos: []
+  gateMat: []

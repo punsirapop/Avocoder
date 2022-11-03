@@ -11,7 +11,8 @@ public enum MachineType
     Conditional,
     Loop,
     If,
-    Other
+    Function,
+    Belt
 }
 
 public enum GateType
@@ -43,7 +44,7 @@ public class Gate
     public Direction direction;
     public GateType gateType;
     public List<DataType> dataTypeList;
-    public Machine connection;
+    public Transform connection;
 
     public Gate(GateType gt, Direction d, List<DataType> dt)
     {
@@ -112,14 +113,18 @@ abstract public class Machine : MonoBehaviour
             g.gameObject.SetActive(false);
         }
 
-        foreach (var d in gateDict.Values)
+        if(type != MachineType.Belt)
         {
-            if((int)d.direction != -1)
+            foreach (var d in gateDict.Values)
             {
-                gatePos[(int)d.direction].gameObject.SetActive(true);
-                gatePos[(int)d.direction].GetComponent<MeshRenderer>().material = gateMat[(int)d.gateType];
+                if((int)d.direction != -1)
+                {
+                    gatePos[(int)d.direction].gameObject.SetActive(true);
+                    gatePos[(int)d.direction].GetComponent<MeshRenderer>().material = gateMat[(int)d.gateType];
+                }
             }
         }
+        
     }
 
     /*
