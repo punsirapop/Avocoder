@@ -89,7 +89,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
                         selectedMachineForConfig = node.thingPlaced;
                         //configTab.SetActive(true);
                         MachineDetailDisplay.Instance.SetSelection(node);
-                        MachineDetailDisplay.Instance.ToggleDetail();
+                        MachineDetailDisplay.Instance.OpenDetail();
                         //playerHolding.position = node.cellPosition + new Vector3(0, 0.5f, 0);
                     }
 

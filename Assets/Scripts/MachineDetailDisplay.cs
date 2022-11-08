@@ -44,8 +44,12 @@ public class MachineDetailDisplay : MonoBehaviour
         Position.text = "(" + (node.cellPosition.x + 1) + ", " + (node.cellPosition.z + 1) + ")";
     }
 
-    public void ToggleDetail()
+    public void OpenDetail()
     {
-        DetailTab.SetActive(!DetailTab.activeSelf);
+        DetailTab.SetActive(true);
+    }
+    public void CloseDetail()
+    {
+        DetailTab.SetActive(false);
     }
 }
