@@ -8,6 +8,10 @@ public class If : Machine
     {
         List<DataType> dt = new List<DataType>();
 
+        // AssignGate(new Gate(GateType.None, Direction.North, dt), Direction.North);
+        // AssignGate(new Gate(GateType.None, Direction.East, dt), Direction.East);
+        // AssignGate(new Gate(GateType.None, Direction.West, dt), Direction.West);
+
         dt.Add(DataType.Bool);
 
         AssignGate(new Gate(GateType.Exit, Direction.South, dt), Direction.South);

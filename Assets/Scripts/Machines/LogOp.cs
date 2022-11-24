@@ -8,6 +8,8 @@ public class LogOp : Machine
     {
         List<DataType> dt = new List<DataType>();
 
+        // AssignGate(new Gate(GateType.None, Direction.North, dt), Direction.North);
+
         dt.Add(DataType.Bool);
 
         AssignGate(new Gate(GateType.Entrance, Direction.East, dt), Direction.East);

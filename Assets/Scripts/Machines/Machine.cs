@@ -19,7 +19,8 @@ public enum GateType
 {
     Entrance,
     Exit,
-    Belt
+    Belt,
+    None
 }
 
 public enum DataType
@@ -82,6 +83,27 @@ abstract public class Machine : MonoBehaviour
 
     public void AssignGate(Gate g, Direction d)
     {
+        gateDict[d] = g;
+        /*
+        if (g.direction != d)
+        {
+            gateDict[d].direction = g.direction;
+            g.direction = d;
+
+            gateDict[gateDict[d].direction] = gateDict[d];
+            gateDict[d] = g;
+            /*
+            AssignGate(gateDict[d], gateDict[d].direction);
+            AssignGate(g, g.direction);
+            
+        }
+        else
+        {
+            gateDict[d] = g;
+        }
+        */
+
+        /*
         // switching 2 gates
         if (gateDict.ContainsKey(d))
         {
@@ -99,12 +121,49 @@ abstract public class Machine : MonoBehaviour
             g.direction = d;
             gateDict.Add(d, g);
         }
+        */
     }
 
     public void RemoveGate(Direction d)
     {
         gateDict.Remove(d);
     }
+
+    public void Rotate(bool left)
+    {
+        Dictionary<Direction, Gate> gateDictN = new Dictionary<Direction, Gate>();
+
+        int offset = left ? 3 : 5;
+        foreach (var g in gateDict)
+        {
+            g.Value.direction = (Direction)((int)(g.Value.direction + offset) % 4);
+            gateDictN.Add(g.Value.direction, g.Value);
+        }
+
+        gateDict = gateDictN;
+    }
+
+    /*
+    public void Rotate(bool left)
+    {
+        
+        Direction a = left ? Direction.East : Direction.West;
+        Direction b = left ? Direction.West : Direction.East;
+
+        /*
+        if (gateDict.ContainsKey(Direction.North)) Debug.Log(gateDict[Direction.North].direction++);
+        if (gateDict.ContainsKey(a)) Debug.Log(gateDict[a].direction++.ToString());
+        if (gateDict.ContainsKey(Direction.South)) Debug.Log(gateDict[Direction.South].direction++);
+        if (gateDict.ContainsKey(b)) Debug.Log(gateDict[b].direction++.ToString());
+        
+        
+        AssignGate(gateDict[Direction.North], a);
+        AssignGate(gateDict[a], Direction.South);
+        AssignGate(gateDict[Direction.South], b);
+        AssignGate(gateDict[b], Direction.North);
+        
+    }
+    */
 
     public virtual void Update()
     {
@@ -117,7 +176,7 @@ abstract public class Machine : MonoBehaviour
         {
             foreach (var d in gateDict.Values)
             {
-                if((int)d.direction != -1)
+                if((int)d.direction != -1 && d.gateType != GateType.None)
                 {
                     gatePos[(int)d.direction].gameObject.SetActive(true);
                     gatePos[(int)d.direction].GetComponent<MeshRenderer>().material = gateMat[(int)d.gateType];

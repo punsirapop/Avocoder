@@ -42,6 +42,15 @@ public class PlaceObjectOnGrid : MonoBehaviour
     void Update()
     {
         GetMousePositionOnGrid();
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow) && playerHolding != null)
+        {
+            playerHolding?.SendMessage("Rotate", true);
+        }
+        else if (Input.GetKeyDown(KeyCode.RightArrow) && playerHolding != null)
+        {
+            playerHolding?.SendMessage("Rotate", false);
+        }
     }
 
     void GetMousePositionOnGrid()
@@ -80,6 +89,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
                         node.isPlacable = true;
                         node.thingPlaced = null;
                         playerHolding.GetComponent<ObjFollowMouse>().isOnGrid = false;
+                        MachineDetailDisplay.Instance.CloseDetail();
                         //playerHolding.position = node.cellPosition + new Vector3(0, 0.5f, 0);
                     }
                     // right click on machine

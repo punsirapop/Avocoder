@@ -34,7 +34,7 @@ public class MachineDetailDisplay : MonoBehaviour
 
         foreach (var g in Gates)
         {
-            g.text = "None";
+            g.text = "-";
         }
         foreach (var item in component.gateDict)
         {
