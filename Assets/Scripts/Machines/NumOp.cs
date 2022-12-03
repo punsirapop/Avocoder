@@ -8,6 +8,8 @@ public class NumOp : Machine
     {
         List<DataType> dt = new List<DataType>();
 
+        // AssignGate(new Gate(GateType.None, Direction.North, dt), Direction.North);
+
         dt.Add(DataType.Int);
         dt.Add(DataType.Float);
 
