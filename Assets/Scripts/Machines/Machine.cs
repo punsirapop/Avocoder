@@ -39,6 +39,12 @@ public enum Direction
     West
 }
 
+public enum LogicalOperator
+{
+    And,
+    Or,
+}
+
 public class Gate
 {
     public Direction direction;
