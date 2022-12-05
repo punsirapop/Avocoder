@@ -119,9 +119,101 @@ public class ConnectorManager : MonoBehaviour
                     ans = true;
                 }
                 break;
+            case GateType.Belt:
+                if (target.gateDict[d].gateType == GateType.Belt)
+                {
+                    ans = true;
+                }
+                break;
             default:
                 break;
         }
         return ans;
     }
 }
+
+
+
+
+
+/*every output gate have a number or a unique identifier
+every gate or belt connected to it have the same identifier as the output gate
+when new machine/ belt connect to the chain copy data over
+- also check if head exist connect to chain
+- if head don't exist connect to the chainn
+
+create chain object
+	identifier start as null
+	the head/output gate
+	list of input gates
+	list of all machine/gate in chain
+	if two chain connect
+	merge into one chain
+	if one chain have identifier, it have priority
+	if there are more than one identifier raise error
+
+    every output gate is a chain
+    update chain connection everytime belt or machine with input gate is placed
+
+when to create new chain
+    only create when thing placed is not adjecant to existing chain
+    machine with output is placed
+    belt is placed
+ 
+when destory machine also remove from chain
+when pick up also remove from chain
+*/
+
+
+public class Chain
+{
+    static int created = 0;
+
+    public int chainID; /*for order when transfering data, may not be needed*/
+    public Dictionary<int,Machine> machineInChainDict; /*keep machine and their order in chain*/
+    public Dictionary<int, List<Direction>> gatesOfMachineInChain; /*for machine that is not belt*/
+
+    public Chain(Machine headOfChain)
+    {
+        chainID = created;
+        created++;
+
+        machineInChainDict[0] = headOfChain;
+        if (headOfChain.type!=MachineType.Belt)
+        {
+            Direction exitGateDir = headOfChain.getExitGate();
+            if (exitGateDir != Direction.None)
+            {
+                gatesOfMachineInChain[0] = new List<Direction>();
+                gatesOfMachineInChain[0].Add(exitGateDir);
+            }
+            else
+            {
+                Debug.Log("error chain without exit gate");
+            }
+        }
+    }
+
+    public void addToChain()
+    {
+
+    }
+
+    public void removeFromChain()
+    {
+
+    }
+
+    /*add any new Belt or machine to chain or if chain is cut also update that*/
+    public void updateChain()
+    {
+
+    }
+}
+
+/*
+every exit is the chain head
+every update
+try to find end of chain and if new add to chain if found another exit raise error
+ 
+ */

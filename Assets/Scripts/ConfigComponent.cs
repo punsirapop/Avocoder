@@ -1,4 +1,4 @@
-/*
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -100,7 +100,7 @@ public class ConfigComponent : MonoBehaviour
         {
             newGateType = GateType.None;
         }
-        selectedMachine.AssignGate(new Gate(newGateType), directionEnum);
+        selectedMachine.gateDict[directionEnum].changeGateType(newGateType);
+
     }
 }
-*/

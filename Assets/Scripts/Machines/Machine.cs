@@ -60,6 +60,11 @@ public class Gate
         dataTypeList = dt;
         connection = null;
     }
+
+    public void changeGateType(GateType newType)
+    {
+        gateType = newType;
+    }
 }
 
 abstract public class Machine : MonoBehaviour
@@ -149,6 +154,19 @@ abstract public class Machine : MonoBehaviour
         gateDict = gateDictN;
     }
 
+    public Direction getExitGate()
+    {
+        foreach (var g in gateDict)
+        {
+            if (g.Value.gateType == GateType.Exit)
+            {
+                return g.Value.direction;
+            }
+        }
+        return Direction.None;
+
+    }
+
     /*
     public void Rotate(bool left)
     {
@@ -192,7 +210,7 @@ abstract public class Machine : MonoBehaviour
         
     }
 
-    /*
+/*
     public virtual void AssignGateDir(Gate g, Direction d)
     {
         if (gates.ContainsKey(d))
@@ -215,7 +233,7 @@ abstract public class Machine : MonoBehaviour
         {
             gates.Add(d, g);
         }
-    }
+    }*/
 
     public GateType GetGateTypeAtDir(Direction d)
     {
@@ -225,9 +243,8 @@ abstract public class Machine : MonoBehaviour
         }
         else
         {
-            AssignGate(new Gate(GateType.None), d);
-            return gateDict[d].gateType;
+            return GateType.None;
         }
     }
-    */
+
 }

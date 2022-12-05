@@ -39,5 +39,21 @@ public class LogOp : Machine
         activated = true;
     }
 
-    
+    public void acceptInput()
+    {
+        foreach (KeyValuePair<Direction, Gate> gate in gateDict)
+        {
+            
+        }
+    }
+
+    public void releaseOutput()
+    {
+        foreach (KeyValuePair<Direction, Gate> gate in gateDict)
+        {
+
+        }
+    }
+
+
 }
