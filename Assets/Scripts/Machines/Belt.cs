@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class Belt : Machine
 {
-    Machine outputDirection = null;
-    Machine inputDirection = null;
-
 
     public override void GenerateGate()
     {
@@ -24,12 +21,3 @@ public class Belt : Machine
     }
 
 }
-
-
-/*
-when place solo belt all gate should be output
-when connected to another output auto have gate be input
-when machine output is place on chain fix gate input output of belts
- 
- 
- */
