@@ -69,6 +69,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
                 // mouse on empty grid
                 if (node.cellPosition == mousePosition && node.isPlacable)
                 {
+                    //(place machine)
                     if (Input.GetMouseButtonUp(0) && playerHolding != null)
                     {
                         node.isPlacable = false;
@@ -76,13 +77,18 @@ public class PlaceObjectOnGrid : MonoBehaviour
                         playerHolding.position = node.cellPosition; // + new Vector3(0, 0, 0);
                         node.thingPlaced = playerHolding;
                         playerHolding = null;
+
+                        print("Creating chain");
+                        Machine machine = node.thingPlaced.GetComponent<Machine>();
+                        Chain newChain = new Chain(machine);
+                        node.chainStart = newChain;
                     }
                     
                 }
                 // mouse on occupied grid 
                 else if (node.cellPosition == mousePosition && !node.isPlacable)
                 {
-                    // left click on machine
+                    // left click on machine (hold machine)
                     if (Input.GetMouseButtonUp(0) && playerHolding == null)
                     {
                         playerHolding = node.thingPlaced;
@@ -91,6 +97,13 @@ public class PlaceObjectOnGrid : MonoBehaviour
                         playerHolding.GetComponent<ObjFollowMouse>().isOnGrid = false;
                         MachineDetailDisplay.Instance.CloseDetail();
                         //playerHolding.position = node.cellPosition + new Vector3(0, 0.5f, 0);
+
+                        print("removing chain");
+                        Chain newChain = node.chainStart;
+                        newChain.removeThisChainFromList();
+                        node.chainStart = null;
+
+
                     }
                     // right click on machine
                     else if (Input.GetMouseButtonUp(1) && playerHolding == null)
@@ -171,6 +184,7 @@ public class Node
     public Vector3 cellPosition;
     public Transform obj;
     public Transform thingPlaced;
+    public Chain chainStart;
 
     public Node(bool isPlacable, Vector3 cellPosition, Transform obj,Transform thingPlaced)
     {

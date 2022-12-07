@@ -103,6 +103,8 @@ public class ConnectorManager : MonoBehaviour
                 }
             }
         }
+
+        updateAllChains();
     }
 
     // Check if opposing gate is valid
@@ -148,8 +150,27 @@ public class ConnectorManager : MonoBehaviour
     {
         foreach (Chain chain in chainsList)
         {
-            chain.reset();
-            chain.updateChain(chain.head,chain.exitDir, 0);
+            if (chain.exitDir != Direction.None)
+            {
+                chain.reset();
+                chain.updateChain(chain.head, chain.exitDir, 0);
+
+                // for debugging
+                print("-----------------------");
+                print("Chain: ");
+                print(chain.chainID);
+                print("Machine in this chain: ");
+                foreach (List<Machine> machineList in chain.machineInChainDict.Values)
+                {
+                    foreach (Machine m in machineList)
+                    {
+                        print(m.myName);
+                    }
+
+                }
+                print("-----------------------");
+            }
+            
         }
 
     }
@@ -196,8 +217,8 @@ public class Chain
     public int tailID;
 
     public int chainID; /*for order when transfering data, may not be needed*/
-    public Dictionary<int,List<Machine>> machineInChainDict; /*keep machine and their order in chain*/
-    /*public Dictionary<int, List<Direction>> gatesOfMachineInChain;*/
+    public Dictionary<int,List<Machine>> machineInChainDict = new Dictionary<int, List<Machine>>(); /*keep machine and their order in chain*/
+    /*public Dictionary<int, List<Direction>> gatesOfMachineInChain = new Dictionary<int, List<Direction>>();*/
     public Machine head;
     public Direction exitDir;
 
@@ -205,12 +226,13 @@ public class Chain
     {
         chainID = created;
         created++;
-
-        machineInChainDict[0] = new List<Machine>();
+        List<Machine> machinesList = new List<Machine>();
+        machineInChainDict[0] = machinesList;
         machineInChainDict[0].Add(headOfChain);
         chainLenth+=1;
         tailID = 0;
         head = headOfChain;
+        exitDir = headOfChain.getExitGate();
         /*if (headOfChain.type!=MachineType.Belt)
         {
             Direction exitGateDir = headOfChain.getExitGate();
@@ -226,6 +248,11 @@ public class Chain
             }
         }*/
         ConnectorManager.chainsList.Add(this);
+    }
+
+    public void removeThisChainFromList()
+    {
+        ConnectorManager.chainsList.Remove(this);
     }
 
     public void addToChain(int placeOrderInChain,Machine machine)
@@ -316,6 +343,11 @@ public class Chain
                         {
                             continueChain = false;
                         }
+                        else if (target.gateDict[Direction.South].gateType == GateType.Exit)
+                        {
+                            continueChain = false;
+                            Debug.Log("!!!! Error exit connected to another exit!");
+                        }
                         addToChain(currentTailID, target);
                         dirWithConnection = Direction.South;
                         hasConnection = true;
@@ -333,6 +365,11 @@ public class Chain
                         if (target.gateDict[Direction.West].gateType == GateType.Entrance)
                         {
                             continueChain = false;
+                        }
+                        else if (target.gateDict[Direction.West].gateType == GateType.Exit)
+                        {
+                            continueChain = false;
+                            Debug.Log("!!!! Error exit connected to another exit!");
                         }
                         addToChain(currentTailID, target);
                         dirWithConnection = Direction.West;
@@ -352,6 +389,11 @@ public class Chain
                         {
                             continueChain = false;
                         }
+                        else if (target.gateDict[Direction.North].gateType == GateType.Exit)
+                        {
+                            continueChain = false;
+                            Debug.Log("!!!! Error exit connected to another exit!");
+                        }
                         addToChain(currentTailID, target);
                         dirWithConnection = Direction.North;
                         hasConnection = true;
@@ -370,6 +412,11 @@ public class Chain
                         {
                             continueChain = false;
                         }
+                        else if (target.gateDict[Direction.East].gateType == GateType.Exit)
+                        {
+                            continueChain = false;
+                            Debug.Log("!!!! Error exit connected to another exit!");
+                        }
                         addToChain(currentTailID, target);
                         dirWithConnection = Direction.East;
                         hasConnection = true;
@@ -387,7 +434,7 @@ public class Chain
             {
                 if (dir != dirWithConnection && dir != Direction.None)
                 {
-                    updateChain(target, dirWithConnection,currentTailID);
+                    updateChain(target, dir, currentTailID);
                 }
             }
                 

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Belt : Machine
 {
-
     public override void GenerateGate()
     {
         List<DataType> dt = new List<DataType>();
