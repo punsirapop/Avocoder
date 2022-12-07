@@ -160,11 +160,20 @@ public class ConnectorManager : MonoBehaviour
                 print("Chain: ");
                 print(chain.chainID);
                 print("Machine in this chain: ");
-                foreach (List<Machine> machineList in chain.machineInChainDict.Values)
+                foreach (KeyValuePair<int, List<Machine>> keypair in chain.machineInChainDict)
                 {
+                    int chainOrder = keypair.Key;
+                    List<Machine> machineList = keypair.Value;
                     foreach (Machine m in machineList)
                     {
                         print(m.myName);
+                        if (m.type != MachineType.Belt)
+                        {
+                            foreach (Direction d in chain.gatesOfMachineInChain[chainOrder][m.myName])
+                            {
+                                print("     " + d);
+                            }
+                        }
                     }
 
                 }
@@ -218,7 +227,8 @@ public class Chain
 
     public int chainID; /*for order when transfering data, may not be needed*/
     public Dictionary<int,List<Machine>> machineInChainDict = new Dictionary<int, List<Machine>>(); /*keep machine and their order in chain*/
-    /*public Dictionary<int, List<Direction>> gatesOfMachineInChain = new Dictionary<int, List<Direction>>();*/
+    public List<int> machineNameList = new List<int>();
+    public Dictionary<int, Dictionary<int,List<Direction>>> gatesOfMachineInChain = new Dictionary<int, Dictionary<int, List<Direction>>>();
     public Machine head;
     public Direction exitDir;
 
@@ -226,6 +236,9 @@ public class Chain
     {
         chainID = created;
         created++;
+
+        machineNameList.Add(headOfChain.myName);
+
         List<Machine> machinesList = new List<Machine>();
         machineInChainDict[0] = machinesList;
         machineInChainDict[0].Add(headOfChain);
@@ -233,20 +246,22 @@ public class Chain
         tailID = 0;
         head = headOfChain;
         exitDir = headOfChain.getExitGate();
-        /*if (headOfChain.type!=MachineType.Belt)
+        if (headOfChain.type != MachineType.Belt)
         {
             Direction exitGateDir = headOfChain.getExitGate();
             if (exitGateDir != Direction.None)
             {
-                gatesOfMachineInChain[0] = new List<Direction>();
-                gatesOfMachineInChain[0].Add(exitGateDir);
+                gatesOfMachineInChain[0] = new Dictionary<int, List<Direction>>();
+                List<Direction> dirList = new List<Direction>();
+                gatesOfMachineInChain[0].Add(headOfChain.myName, dirList);
+                gatesOfMachineInChain[0][headOfChain.myName].Add(exitGateDir);
                 exitDir = exitGateDir;
             }
             else
             {
                 Debug.Log("error chain without exit gate");
             }
-        }*/
+        }
         ConnectorManager.chainsList.Add(this);
     }
 
@@ -255,15 +270,42 @@ public class Chain
         ConnectorManager.chainsList.Remove(this);
     }
 
-    public void addToChain(int placeOrderInChain,Machine machine)
+    public void addToChain(int placeOrderInChain,Machine machine,Direction gateDir)
     {
+        Debug.Log("Adding: "+machine.type);
+        if (machine.type == MachineType.Logical)
+        {
+            Debug.Log("found logical: "+machine.myName);
+        }
+
         tailID = placeOrderInChain;
         if (!machineInChainDict.ContainsKey(placeOrderInChain))
         {
             machineInChainDict[placeOrderInChain] = new List<Machine>();
             chainLenth += 1;
         }
-        machineInChainDict[placeOrderInChain].Add(machine);
+        if (!machineInChainDict[placeOrderInChain].Contains(machine))
+        {
+            machineInChainDict[placeOrderInChain].Add(machine);
+        }
+        if (!machineNameList.Contains(machine.myName))
+        {
+            machineNameList.Add(machine.myName);
+        }
+
+        if (machine.type != MachineType.Belt && gateDir != Direction.None)
+        {
+            Debug.Log("Adding not belt: " + machine.type);
+            if (!gatesOfMachineInChain.ContainsKey(placeOrderInChain))
+            {
+                gatesOfMachineInChain[placeOrderInChain] = new Dictionary<int, List<Direction>>();
+                List<Direction> dirList = new List<Direction>();
+                gatesOfMachineInChain[placeOrderInChain].Add(machine.myName, dirList);
+            }
+            
+            gatesOfMachineInChain[placeOrderInChain][machine.myName].Add(gateDir);
+
+        }
     }
 
     public void removeFromChainStartingFrom(int placeOrderInChain)
@@ -312,7 +354,8 @@ public class Chain
          *          updateChain(newPart,gate)
          * 5. if not connected stop
          */
-
+        if (gateDirToCheck == Direction.None) Debug.Log("NONE DIRECTION!!!");
+        Debug.Log("updating machine "+ machineToCheck.myName +" of type "+machineToCheck.type+" at dir "+gateDirToCheck);
         Node currentNode = PlaceObjectOnGrid.Instance.GetNode(machineToCheck.transform);
         Machine target = null;
 
@@ -336,11 +379,16 @@ public class Chain
                 if (z <= 4)
                 {
                     target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
+                    if (target == null) return;
                     // Check if target is available for connection
-                    if (target != null && CheckGate(g, Direction.South,target))
+                    if (target != null && CheckGate(g, Direction.South, target))
                     {
+                        dirWithConnection = Direction.South;
+                        Debug.Log("target found machine" + target.myName + "of type " + target.type + " at dir " + dirWithConnection);
+                        Debug.Log("target gate type" + target.gateDict[Direction.South].gateType);
                         if (target.gateDict[Direction.South].gateType == GateType.Entrance)
                         {
+                            Debug.Log("Found entrance gate");
                             continueChain = false;
                         }
                         else if (target.gateDict[Direction.South].gateType == GateType.Exit)
@@ -348,22 +396,49 @@ public class Chain
                             continueChain = false;
                             Debug.Log("!!!! Error exit connected to another exit!");
                         }
-                        addToChain(currentTailID, target);
-                        dirWithConnection = Direction.South;
-                        hasConnection = true;
+
+
+                        if (!machineNameList.Contains(target.myName))
+                        {
+                            addToChain(currentTailID, target, Direction.South);
+                            hasConnection = true;
+                        }
+                        else if (target.type != MachineType.Belt)
+                        {
+                            addToChain(currentTailID, target, Direction.South);
+                        }
+                        else
+                        {
+                            Debug.Log("!!!! Error loop in chain");
+                        }
+
                     }
                 }
+                else return;
                 break;
             case Direction.East:
                 x++;
                 if (x <= 4)
                 {
                     target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
+                    if (target == null) return;
                     // Check if target is available for connection
+                    if (target.type == MachineType.Logical)
+                    {
+                        if (CheckGate(g, Direction.West, target))
+                        {
+                            Debug.Log("Check gate of logical passed");
+                        }else Debug.Log("Check gate of logical not passed");
+                    }
+
                     if (target != null && CheckGate(g, Direction.West,target))
                     {
+                        dirWithConnection = Direction.West;
+                        Debug.Log("target found machine " + target.myName + "of type " + target.type + " at dir " + dirWithConnection);
+                        Debug.Log("target gate type" + target.gateDict[Direction.West].gateType);
                         if (target.gateDict[Direction.West].gateType == GateType.Entrance)
                         {
+                            Debug.Log("Found entrance gate");
                             continueChain = false;
                         }
                         else if (target.gateDict[Direction.West].gateType == GateType.Exit)
@@ -371,22 +446,38 @@ public class Chain
                             continueChain = false;
                             Debug.Log("!!!! Error exit connected to another exit!");
                         }
-                        addToChain(currentTailID, target);
-                        dirWithConnection = Direction.West;
-                        hasConnection = true;
+                        if (!machineNameList.Contains(target.myName))
+                        {
+                            addToChain(currentTailID, target, Direction.West);
+                            hasConnection = true;
+                        }
+                        else if (target.type != MachineType.Belt)
+                        {
+                            addToChain(currentTailID, target, Direction.West);
+                        }
+                        else
+                        {
+                            Debug.Log("!!!! Error loop in chain");
+                        }
                     }
                 }
+                else return;
                 break;
             case Direction.South:
                 z--;
                 if (z >= 0)
                 {
                     target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
+                    if (target == null) return;
                     // Check if target is available for connection
                     if (target != null && CheckGate(g, Direction.North, target))
                     {
+                        dirWithConnection = Direction.North;
+                        Debug.Log("target found machine" + target.myName + "of type " + target.type + " at dir " + dirWithConnection);
+                        Debug.Log("target gate type"+target.gateDict[Direction.North].gateType);
                         if (target.gateDict[Direction.North].gateType == GateType.Entrance)
                         {
+                            Debug.Log("Found entrance gate");
                             continueChain = false;
                         }
                         else if (target.gateDict[Direction.North].gateType == GateType.Exit)
@@ -394,22 +485,39 @@ public class Chain
                             continueChain = false;
                             Debug.Log("!!!! Error exit connected to another exit!");
                         }
-                        addToChain(currentTailID, target);
-                        dirWithConnection = Direction.North;
-                        hasConnection = true;
+                        if (!machineNameList.Contains(target.myName))
+                        {
+                            addToChain(currentTailID, target, Direction.North);
+                            hasConnection = true;
+                        }
+                        else if (target.type != MachineType.Belt)
+                        {
+                            addToChain(currentTailID, target, Direction.North);
+                        }
+                        else
+                        {
+                            Debug.Log("!!!! Error loop in chain");
+                        }
+
                     }
                 }
+                else return;
                 break;
             case Direction.West:
                 x--;
                 if (x >= 0)
                 {
                     target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
+                    if (target == null) return;
                     // Check if target is available for connection
                     if (target != null && CheckGate(g, Direction.East, target))
                     {
+                        dirWithConnection = Direction.East;
+                        Debug.Log("target found machine" + target.myName + "of type " + target.type + " at dir " + dirWithConnection);
+                        Debug.Log("target gate type"+target.gateDict[Direction.East].gateType);
                         if (target.gateDict[Direction.East].gateType == GateType.Entrance)
                         {
+                            Debug.Log("Found entrance gate");
                             continueChain = false;
                         }
                         else if (target.gateDict[Direction.East].gateType == GateType.Exit)
@@ -417,29 +525,41 @@ public class Chain
                             continueChain = false;
                             Debug.Log("!!!! Error exit connected to another exit!");
                         }
-                        addToChain(currentTailID, target);
-                        dirWithConnection = Direction.East;
-                        hasConnection = true;
+                        if (!machineNameList.Contains(target.myName))
+                        {
+                            addToChain(currentTailID, target, Direction.East);
+                            hasConnection = true;
+                        }
+                        else if (target.type != MachineType.Belt)
+                        {
+                            addToChain(currentTailID, target, Direction.East);
+                        }
+                        else
+                        {
+                            Debug.Log("!!!! Error loop in chain");
+                        }
+
                     }
                 }
+                else return;
                 break;
             default:
-                dirWithConnection = Direction.None;
-                hasConnection = false;
                 break;
-        }       
+        }
         if (hasConnection && continueChain)
         {
             foreach (Direction dir in (Direction[]) Enum.GetValues(typeof(Direction)))
             {
-                if (dir != dirWithConnection && dir != Direction.None)
+                if (dir != dirWithConnection && dir != Direction.None && dirWithConnection != Direction.None)
                 {
+                    Debug.Log("Thing sending in update chain"+target.myName+" "+dir+" "+currentTailID);
                     updateChain(target, dir, currentTailID);
                 }
             }
                 
         }
     }
+
 
     // Check if opposing gate is valid
     public bool CheckGate(Gate g, Direction d,Machine target)
@@ -469,7 +589,9 @@ public class Chain
                 }
                 break;
             case GateType.Belt:
-                if (target.gateDict[d].gateType == GateType.Belt)
+                if (target.gateDict[d].gateType == GateType.Belt ||
+                    target.gateDict[d].gateType == GateType.Entrance ||
+                    target.gateDict[d].gateType == GateType.Exit)
                 {
                     ans = true;
                 }
@@ -483,9 +605,18 @@ public class Chain
 
     public void reset()
     {
+        machineNameList.Clear();
+        machineNameList.Add(head.myName);
         machineInChainDict.Clear();
         machineInChainDict[0] = new List<Machine>();
         machineInChainDict[0].Add(head);
+        gatesOfMachineInChain.Clear();
+        Direction exitGateDir = head.getExitGate();
+        gatesOfMachineInChain[0] = new Dictionary<int, List<Direction>>();
+        List<Direction> dirList = new List<Direction>();
+        gatesOfMachineInChain[0].Add(head.myName, dirList);
+        gatesOfMachineInChain[0][head.myName].Add(exitGateDir);
+        exitDir = exitGateDir;
         tailID = 0;
     }
 }
