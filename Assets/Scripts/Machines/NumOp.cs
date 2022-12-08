@@ -4,10 +4,18 @@ using UnityEngine;
 
 public class NumOp : Machine
 {
+    /*public List<DataType> entranceDataType = new List<DataType>() { DataType.Int, DataType.Float };
+    public List<DataType> exitDataType = new List<DataType>() { DataType.Int, DataType.Float };*/
+
     public override void GenerateGate()
     {
         List<DataType> dt = new List<DataType>();
 
+        entranceDataType.Add(DataType.Int);
+        entranceDataType.Add(DataType.Float);
+
+        exitDataType.Add(DataType.Int);
+        exitDataType.Add(DataType.Float);
         // AssignGate(new Gate(GateType.None, Direction.North, dt), Direction.North);
 
         dt.Add(DataType.Int);

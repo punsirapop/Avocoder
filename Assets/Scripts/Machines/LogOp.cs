@@ -8,11 +8,15 @@ public class LogOp : Machine
 {
     public bool activated = false;
     public LogicalOperator operatorSelected;
+
     public override void GenerateGate()
     {
         List<DataType> dt = new List<DataType>();
 
         // AssignGate(new Gate(GateType.None, Direction.North, dt), Direction.North);
+
+        entranceDataType.Add(DataType.Bool);
+        exitDataType.Add(DataType.Bool);
 
         dt.Add(DataType.Bool);
 

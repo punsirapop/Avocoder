@@ -354,7 +354,7 @@ public class Chain
          *          updateChain(newPart,gate)
          * 5. if not connected stop
          */
-        if (gateDirToCheck == Direction.None) Debug.Log("NONE DIRECTION!!!");
+        if (gateDirToCheck == Direction.None) return;
         Debug.Log("updating machine "+ machineToCheck.myName +" of type "+machineToCheck.type+" at dir "+gateDirToCheck);
         Node currentNode = PlaceObjectOnGrid.Instance.GetNode(machineToCheck.transform);
         Machine target = null;

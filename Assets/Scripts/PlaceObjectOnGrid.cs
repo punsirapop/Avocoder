@@ -41,6 +41,8 @@ public class PlaceObjectOnGrid : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (ConfigComponent.Instance.configuring) return;
+
         GetMousePositionOnGrid();
 
         if (Input.GetKeyDown(KeyCode.LeftArrow) && playerHolding != null)

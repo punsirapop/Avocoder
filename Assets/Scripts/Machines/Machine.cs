@@ -79,6 +79,9 @@ abstract public class Machine : MonoBehaviour
 
     public Dictionary<Direction, Gate> gateDict = new Dictionary<Direction, Gate>();
 
+    public List<DataType> entranceDataType = new List<DataType>();
+    public List<DataType> exitDataType = new List<DataType>();
+
     [SerializeField] Transform[] gatePos;
     [SerializeField] Material[] gateMat;
 
