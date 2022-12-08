@@ -13,11 +13,15 @@ public class ConfigComponent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        selectedMachine = PlaceObjectOnGrid.Instance.selectedMachineForConfig.GetComponent<Machine>();
-        if (selectedMachine != null)
+        if (PlaceObjectOnGrid.Instance.selectedMachineForConfig != null)
         {
-            updateConfigForSelectedMachine();
+            selectedMachine = PlaceObjectOnGrid.Instance.selectedMachineForConfig.GetComponent<Machine>();
+            if (selectedMachine != null)
+            {
+                updateConfigForSelectedMachine();
+            }
         }
+        
     }
 
     public void updateConfigForSelectedMachine()
