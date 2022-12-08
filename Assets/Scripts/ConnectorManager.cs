@@ -299,8 +299,11 @@ public class Chain
             if (!gatesOfMachineInChain.ContainsKey(placeOrderInChain))
             {
                 gatesOfMachineInChain[placeOrderInChain] = new Dictionary<int, List<Direction>>();
-                List<Direction> dirList = new List<Direction>();
-                gatesOfMachineInChain[placeOrderInChain].Add(machine.myName, dirList);
+            }
+
+            if (!gatesOfMachineInChain[placeOrderInChain].ContainsKey(machine.myName))
+            {
+                gatesOfMachineInChain[placeOrderInChain][machine.myName] = new List<Direction>();
             }
             
             gatesOfMachineInChain[placeOrderInChain][machine.myName].Add(gateDir);

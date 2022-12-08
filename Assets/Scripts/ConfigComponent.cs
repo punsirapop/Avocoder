@@ -158,5 +158,8 @@ public class ConfigComponent : MonoBehaviour
             selectedMachine.gateDict[directionEnum].changeGateType(newGateType);
         }
 
+        Node currentNode = PlaceObjectOnGrid.Instance.GetNode(selectedMachine.transform);
+        MachineDetailDisplay.Instance.SetSelection(currentNode);
+
     }
 }
