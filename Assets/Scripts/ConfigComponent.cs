@@ -8,9 +8,12 @@ public class ConfigComponent : MonoBehaviour
 {
     Machine selectedMachine;
 
-    public Image NorthGateDisplay, SouthGateDisplay, EastGateDisplay, WestGateDisplay;
+    public Image NorthGateDisplay, SouthGateDisplay, EastGateDisplay, WestGateDisplay, VariableTypeDisplay, ComparisonSignDisplay;
     public Sprite inputSprite, outputSprite, noneSprite, beltConnectSprite;
-    public GameObject configTab;
+    public Sprite intImg, floatImg, boolImg;
+    public Sprite gt, lt, eq, neq, gteq, lteg;
+    public GameObject configTab, variableConfigTab, comparisonConfigTab;
+
     public bool configuring = false;
 
     public static ConfigComponent Instance;
@@ -43,19 +46,45 @@ public class ConfigComponent : MonoBehaviour
         print("North: " + selectedMachine.GetGateTypeAtDir(Direction.North));
         print("West: " + selectedMachine.GetGateTypeAtDir(Direction.West));
         updateGateDisplay();
+        if (selectedMachine.type == MachineType.Variable)
+        {
+            updateVariableDisplay();
+        }
+        else if (selectedMachine.type == MachineType.Comparison)
+        {
+            updateComparisonDisplay();
+        }
     }
 
     public void openConfig()
     {
-        configTab.SetActive(true);
+        if (PlaceObjectOnGrid.Instance.selectedMachineForConfig != null)
+        {
+            selectedMachine = PlaceObjectOnGrid.Instance.selectedMachineForConfig.GetComponent<Machine>();
+        }
+
+            if (selectedMachine.type == MachineType.Variable)
+        {
+            variableConfigTab.SetActive(true);
+        }
+        else if (selectedMachine.type == MachineType.Comparison)
+        {
+            comparisonConfigTab.SetActive(true);
+        }
+        else
+        {
+            configTab.SetActive(true);
+        }
         configuring = true;
         gameObject.SetActive(true);
     }
 
     public void closeConfig()
     {
-        configuring = false;
+        variableConfigTab.SetActive(false);
+        comparisonConfigTab.SetActive(false);
         configTab.SetActive(false);
+        configuring = false;
         gameObject.SetActive(false);
     }
 
@@ -109,6 +138,16 @@ public class ConfigComponent : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void updateVariableDisplay()
+    {
+
+    }
+
+    public void updateComparisonDisplay()
+    {
+
     }
 
     public void toggleGate(string direction)

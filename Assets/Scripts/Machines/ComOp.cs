@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class ComOp : Machine
 {
-
+    List<string> availableSigns = new List<string>() { ">" , "<", "==", ">=","<=","!="};
+    int selectedSignIndex = 0;
     public override void GenerateGate()
     {
         List<DataType> dt = new List<DataType>();
@@ -28,5 +29,14 @@ public class ComOp : Machine
     public override void activate()
     {
         print("comparison operator activated");
+    }
+
+    public void toggleSign()
+    {
+        selectedSignIndex = (selectedSignIndex+1)%availableSigns.Count;
+    }
+    public string getCurrentSign()
+    {
+        return availableSigns[selectedSignIndex];
     }
 }

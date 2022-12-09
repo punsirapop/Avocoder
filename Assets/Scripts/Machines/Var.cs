@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class Var : Machine
 {
+
+    public int intData;
+    public float floatData;
+    public bool boolData;
+
+    public DataType dataType;
+
     public override void GenerateGate()
     {
         List<DataType> dt = new List<DataType>();
@@ -17,4 +24,41 @@ public class Var : Machine
     {
         print("variable activated");
     }
+
+    public void setDataType(DataType newDataType)
+    {
+        dataType = newDataType;
+    }
+
+    public void setIntData(int newIntData)
+    {
+        intData = newIntData;
+    }
+
+    public void setFloatData(float newFloatData)
+    {
+        floatData = newFloatData;
+    }
+
+    public void setBoolData(bool newBoolData)
+    {
+        boolData = newBoolData;
+    }
+
+    public int getIntData()
+    {
+        return intData;
+    }
+
+    public float getFloatData()
+    {
+        return floatData;
+    }
+
+    public bool getBoolData()
+    {
+        return boolData;
+    }
+
+
 }
