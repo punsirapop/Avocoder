@@ -79,6 +79,10 @@ public class PlaceObjectOnGrid : MonoBehaviour
                         playerHolding.position = node.cellPosition; // + new Vector3(0, 0, 0);
                         node.thingPlaced = playerHolding;
                         playerHolding = null;
+                        if (!MachineActivationManager.allMachineList.Contains(node.thingPlaced.gameObject))
+                        {
+                            MachineActivationManager.allMachineList.Add(node.thingPlaced.gameObject);
+                        }
 
                         print("Creating chain");
                         Machine machine = node.thingPlaced.GetComponent<Machine>();
@@ -90,7 +94,7 @@ public class PlaceObjectOnGrid : MonoBehaviour
                 // mouse on occupied grid 
                 else if (node.cellPosition == mousePosition && !node.isPlacable)
                 {
-                    // left click on machine (hold machine)
+                    // left click on machine (pick up machine)
                     if (Input.GetMouseButtonUp(0) && playerHolding == null)
                     {
                         playerHolding = node.thingPlaced;
@@ -98,6 +102,10 @@ public class PlaceObjectOnGrid : MonoBehaviour
                         node.thingPlaced = null;
                         playerHolding.GetComponent<ObjFollowMouse>().isOnGrid = false;
                         MachineDetailDisplay.Instance.CloseDetail();
+                        if (MachineActivationManager.allMachineList.Contains(playerHolding.gameObject))
+                        {
+                            MachineActivationManager.allMachineList.Remove(playerHolding.gameObject);
+                        }
                         //playerHolding.position = node.cellPosition + new Vector3(0, 0.5f, 0);
 
                         print("removing chain");
@@ -135,7 +143,10 @@ public class PlaceObjectOnGrid : MonoBehaviour
         if (playerHolding == null)
         {
             playerHolding = Instantiate(components[index], mousePosition, Quaternion.identity);
-            MachineActivationManager.allMachineList.Add(playerHolding.gameObject);
+            if (!MachineActivationManager.allMachineList.Contains(playerHolding.gameObject))
+            {
+                MachineActivationManager.allMachineList.Add(playerHolding.gameObject);
+            }
         }
     }
 
@@ -143,7 +154,10 @@ public class PlaceObjectOnGrid : MonoBehaviour
     {
         if (playerHolding != null)
         {
-            MachineActivationManager.allMachineList.Remove(playerHolding.gameObject);
+            if (MachineActivationManager.allMachineList.Contains(playerHolding.gameObject))
+            {
+                MachineActivationManager.allMachineList.Remove(playerHolding.gameObject);
+            }
             Destroy(playerHolding.gameObject);
             playerHolding = null;
         }

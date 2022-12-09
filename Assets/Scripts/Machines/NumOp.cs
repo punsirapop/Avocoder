@@ -25,4 +25,9 @@ public class NumOp : Machine
         AssignGate(new Gate(GateType.Entrance, Direction.West, dt), Direction.West);
         AssignGate(new Gate(GateType.Exit, Direction.South, dt), Direction.South);
     }
+
+    public override void activate()
+    {
+        print("number operator activated");
+    }
 }

@@ -8,8 +8,7 @@ public enum MachineType
     Numeric,
     Comparison,
     Logical,
-    Conditional,
-    Loop,
+    // Loop,
     If,
     Function,
     Belt
@@ -95,6 +94,7 @@ abstract public class Machine : MonoBehaviour
 
     public abstract void GenerateGate();
 
+    public abstract void activate();
     public void AssignGate(Gate g, Direction d)
     {
         gateDict[d] = g;
@@ -194,6 +194,8 @@ abstract public class Machine : MonoBehaviour
 
     public virtual void Update()
     {
+        if (type == MachineType.Belt) return;
+
         foreach (Transform g in gatePos)
         {
             g.gameObject.SetActive(false);

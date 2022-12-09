@@ -30,8 +30,9 @@ public class LogOp : Machine
         operatorSelected = opSelected;
     }
 
-    public void activate()
+    public override void activate()
     {
+        print("logical operator activated");
         if (operatorSelected == LogicalOperator.And)
         {
 

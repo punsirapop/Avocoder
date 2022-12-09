@@ -14,4 +14,9 @@ public class Func : Machine
         // AssignGate(new Gate(GateType.None, Direction.West, dt), Direction.West);
 
     }
+
+    public override void activate()
+    {
+        print("function activated");
+    }
 }

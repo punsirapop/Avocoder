@@ -13,4 +13,8 @@ public class Var : Machine
         // AssignGate(new Gate(GateType.None, Direction.South, dt), Direction.South);
         // AssignGate(new Gate(GateType.None, Direction.West, dt), Direction.West);
     }
+    public override void activate()
+    {
+        print("variable activated");
+    }
 }

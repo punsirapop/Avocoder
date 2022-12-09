@@ -14,9 +14,9 @@ public class Belt : Machine
         AssignGate(new Gate(GateType.Belt, Direction.South, dt), Direction.South);
     }
 
-    public void updateInputOutputDirection()
+    public override void activate()
     {
-
+        print("belt activated");
     }
 
 }

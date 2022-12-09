@@ -24,4 +24,9 @@ public class ComOp : Machine
         AssignGate(new Gate(GateType.Entrance, Direction.West, entranceDataType), Direction.West);
         AssignGate(new Gate(GateType.Exit, Direction.South, exitDataType), Direction.South);
     }
+
+    public override void activate()
+    {
+        print("comparison operator activated");
+    }
 }
