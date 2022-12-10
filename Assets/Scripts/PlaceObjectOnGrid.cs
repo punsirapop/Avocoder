@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class PlaceObjectOnGrid : MonoBehaviour
 {
@@ -8,7 +9,10 @@ public class PlaceObjectOnGrid : MonoBehaviour
 
     public Transform gridCellPrefab;
     public Transform gridHolder;
-    public Transform[] components; 
+    public Transform[] components;
+
+    public Transform orderDisplayPrefab;
+    public Transform orderDisplayHolder;
 
     public Transform playerHolding;
     public Transform selectedMachineForConfig;
@@ -66,11 +70,23 @@ public class PlaceObjectOnGrid : MonoBehaviour
             smoothMousePosition = mousePosition;
             mousePosition = Vector3Int.RoundToInt(mousePosition);
             gridMousePosition = mousePosition;
+            print("clicked: " + mousePosition);
             foreach (var node in nodes)
             {
+                if (ConfigComponent.Instance.orderMode)
+                {
+                    node.orderDisplay.gameObject.SetActive(true);
+                    ConfigComponent.Instance.updateOrderDisplay(node);
+                }
+                else
+                {
+                    node.orderDisplay.gameObject.SetActive(false);
+                }
+
                 // mouse on empty grid
                 if (node.cellPosition == mousePosition && node.isPlacable)
                 {
+                    print("Cell pos: " + node.cellPosition + " and Mouse pos: " + mousePosition);
                     //(place machine)
                     if (Input.GetMouseButtonUp(0) && playerHolding != null)
                     {
@@ -94,6 +110,20 @@ public class PlaceObjectOnGrid : MonoBehaviour
                 // mouse on occupied grid 
                 else if (node.cellPosition == mousePosition && !node.isPlacable)
                 {
+                    if (ConfigComponent.Instance.orderMode && Input.GetMouseButtonUp(0))
+                    {
+                        // left click on machine in orderMode
+                        ConfigComponent.Instance.leftClickInOrderMode(node);
+                        return;
+                    }
+
+                    else if (ConfigComponent.Instance.orderMode && Input.GetMouseButtonUp(1))
+                    {
+                        // right click on nothing in orderMode
+                        ConfigComponent.Instance.rightClickInOrderMode(node);
+                        return;
+                    }
+
                     // left click on machine (pick up machine)
                     if (Input.GetMouseButtonUp(0) && playerHolding == null)
                     {
@@ -186,7 +216,12 @@ public class PlaceObjectOnGrid : MonoBehaviour
                 Vector3 worldPosition = new Vector3(i, 0, j);
                 Transform obj = Instantiate(gridCellPrefab, worldPosition, Quaternion.identity, gridHolder);
                 obj.name = "Cell " + name;
-                nodes[i, j] = new Node(isPlacable: true, worldPosition, obj,null);
+
+                // create orderDisplay
+                Transform orderDisplay = Instantiate(orderDisplayPrefab, new Vector3(i, 2, j), Quaternion.Euler(new Vector3(90.0f, 0.0f, 0.0f)), orderDisplayHolder);
+                orderDisplay.name = "OrderDisplay " + name;
+
+                nodes[i, j] = new Node(isPlacable: true, worldPosition, obj,null, orderDisplay);
                 name++;
             }
         }
@@ -200,13 +235,15 @@ public class Node
     public Vector3 cellPosition;
     public Transform obj;
     public Transform thingPlaced;
+    public Transform orderDisplay;
     public Chain chainStart;
 
-    public Node(bool isPlacable, Vector3 cellPosition, Transform obj,Transform thingPlaced)
+    public Node(bool isPlacable, Vector3 cellPosition, Transform obj,Transform thingPlaced,Transform orderDisplay)
     {
         this.isPlacable = isPlacable;
         this.cellPosition = cellPosition;
         this.obj = obj;
         this.thingPlaced = thingPlaced;
+        this.orderDisplay = orderDisplay;
     }
 }

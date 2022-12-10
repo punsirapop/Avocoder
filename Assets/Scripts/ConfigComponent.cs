@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class ConfigComponent : MonoBehaviour
 {
@@ -15,11 +16,13 @@ public class ConfigComponent : MonoBehaviour
     public Sprite gt, lt, eq, neq, gteq, lteg;
     public GameObject configTab, variableConfigTab, comparisonConfigTab;
     public GameObject dataInputField, boolDataToggle;
+    public GameObject orderModeInstructionDisplay;
 
     public bool configuring = false;
 
     public static ConfigComponent Instance;
 
+    public bool orderMode = false;
     private void Awake()
     {
         if (Instance == null)
@@ -216,6 +219,18 @@ public class ConfigComponent : MonoBehaviour
         }
     }
 
+    public void toggleOrderMode()
+    {
+        orderMode = !orderMode;
+        if (orderMode)
+        {
+            orderModeInstructionDisplay.SetActive(true);
+        }
+        else
+        {
+            orderModeInstructionDisplay.SetActive(false);
+        }
+    }
     public void toggleGate(string direction)
     {
         // String to enum
@@ -350,6 +365,59 @@ public class ConfigComponent : MonoBehaviour
                     }
                 }
             }
+        }
+    }
+
+    public void updateOrderDisplay(Node n)
+    {
+        if (n.thingPlaced != null)
+        {
+            Machine currentMachine = n.thingPlaced.GetComponent<Machine>();
+
+            if (currentMachine.type == MachineType.Belt)
+            {
+                n.orderDisplay.GetComponent<TextMeshPro>().text = "";
+            }
+            else
+            {
+                n.orderDisplay.GetComponent<TextMeshPro>().text = "" + currentMachine.order;
+            }
+
+        }
+        else
+        {
+            n.orderDisplay.GetComponent<TextMeshPro>().text = "";
+        }
+        
+    }
+
+    public void leftClickInOrderMode(Node n)
+    {
+        if (orderMode && n.thingPlaced != null)
+        {
+            Machine currentMachine = n.thingPlaced.GetComponent<Machine>();
+
+            if (currentMachine.type == MachineType.Belt) return;
+
+            int currentOrder = currentMachine.order;
+            currentMachine.order = currentOrder + 1;
+            n.orderDisplay.GetComponent<TextMeshPro>().text = ""+ currentMachine.order;
+        }
+    }
+
+    public void rightClickInOrderMode(Node n)
+    {
+        if (orderMode && n.thingPlaced != null)
+        {
+            Machine currentMachine = n.thingPlaced.GetComponent<Machine>();
+
+            if (currentMachine.type == MachineType.Belt) return;
+
+            int currentOrder = currentMachine.order;
+            currentMachine.order =  Math.Max(currentOrder - 1,1);
+            n.orderDisplay.GetComponent<TextMeshPro>().text = "" + currentMachine.order;
+            
+            
         }
     }
 }
