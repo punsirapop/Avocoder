@@ -3,16 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ConfigComponent : MonoBehaviour
 {
     Machine selectedMachine;
 
-    public Image NorthGateDisplay, SouthGateDisplay, EastGateDisplay, WestGateDisplay, VariableTypeDisplay, ComparisonSignDisplay;
+    public Image NorthGateDisplay, SouthGateDisplay, EastGateDisplay, WestGateDisplay, VariableTypeDisplay, ComparisonSignDisplay, boolDisplay;
     public Sprite inputSprite, outputSprite, noneSprite, beltConnectSprite;
-    public Sprite intImg, floatImg, boolImg;
+    public Sprite intImg, floatImg, boolImg, trueImg, falseImg;
     public Sprite gt, lt, eq, neq, gteq, lteg;
     public GameObject configTab, variableConfigTab, comparisonConfigTab;
+    public GameObject dataInputField, boolDataToggle;
 
     public bool configuring = false;
 
@@ -46,9 +48,11 @@ public class ConfigComponent : MonoBehaviour
         print("North: " + selectedMachine.GetGateTypeAtDir(Direction.North));
         print("West: " + selectedMachine.GetGateTypeAtDir(Direction.West));
         updateGateDisplay();
+        
         if (selectedMachine.type == MachineType.Variable)
         {
             updateVariableDisplay();
+            updateBoolDisplay();
         }
         else if (selectedMachine.type == MachineType.Comparison)
         {
@@ -63,18 +67,20 @@ public class ConfigComponent : MonoBehaviour
             selectedMachine = PlaceObjectOnGrid.Instance.selectedMachineForConfig.GetComponent<Machine>();
         }
 
-            if (selectedMachine.type == MachineType.Variable)
+        configTab.SetActive(true);
+
+        if (selectedMachine.type == MachineType.Variable)
         {
             variableConfigTab.SetActive(true);
+            comparisonConfigTab.SetActive(false);
         }
         else if (selectedMachine.type == MachineType.Comparison)
         {
             comparisonConfigTab.SetActive(true);
+            variableConfigTab.SetActive(false);
+
         }
-        else
-        {
-            configTab.SetActive(true);
-        }
+
         configuring = true;
         gameObject.SetActive(true);
     }
@@ -142,12 +148,72 @@ public class ConfigComponent : MonoBehaviour
 
     public void updateVariableDisplay()
     {
+        Var machine = selectedMachine.gameObject.GetComponent<Var>();
+        DataType currentDataType = machine.getDataType();
+        print("data: "+currentDataType);
+        if (currentDataType == DataType.Int)
+        {
+            VariableTypeDisplay.sprite = intImg;
+            boolDataToggle.SetActive(false);
+            dataInputField.SetActive(true);
+        }
+        else if (currentDataType == DataType.Float)
+        {
+            VariableTypeDisplay.sprite = floatImg;
+            boolDataToggle.SetActive(false);
+            dataInputField.SetActive(true);
 
+        }
+        else if (currentDataType == DataType.Bool)
+        {
+            VariableTypeDisplay.sprite = boolImg;
+            dataInputField.SetActive(false);
+            boolDataToggle.SetActive(true);
+        }
     }
 
     public void updateComparisonDisplay()
     {
+        ComOp machine = selectedMachine.gameObject.GetComponent<ComOp>();
+        string currentSign = machine.getCurrentSign();
+        if (currentSign == ">")
+        {
+            ComparisonSignDisplay.sprite = gt;
+        }
+        else if (currentSign == "<")
+        {
+            ComparisonSignDisplay.sprite = lt;
+        }
+        else if (currentSign == "==")
+        {
+            ComparisonSignDisplay.sprite = eq;
+        }
+        else if (currentSign == "!=")
+        {
+            ComparisonSignDisplay.sprite = neq;
+        }
+        else if (currentSign == ">=")
+        {
+            ComparisonSignDisplay.sprite = gteq;
+        }
+        else if (currentSign == "<=")
+        {
+            ComparisonSignDisplay.sprite = lteg;
+        }
+    }
 
+    public void updateBoolDisplay()
+    {
+        Var machine = selectedMachine.gameObject.GetComponent<Var>();
+        bool currentBool = machine.getBoolData();
+        if (currentBool)
+        {
+            boolDisplay.sprite = trueImg;
+        }
+        else
+        {
+            boolDisplay.sprite = falseImg;
+        }
     }
 
     public void toggleGate(string direction)
@@ -200,5 +266,90 @@ public class ConfigComponent : MonoBehaviour
         Node currentNode = PlaceObjectOnGrid.Instance.GetNode(selectedMachine.transform);
         MachineDetailDisplay.Instance.SetSelection(currentNode);
 
+    }
+
+    public void toggleCompareSign()
+    {
+        ComOp machine = selectedMachine.gameObject.GetComponent<ComOp>();
+        machine.toggleSign();        
+    }
+
+    public void toggleDataType()
+    {
+        if (selectedMachine.type == MachineType.Variable)
+        {
+            Var machine = selectedMachine.gameObject.GetComponent<Var>();
+            machine.toggleDataType();
+            readDataInput();
+        }
+    }
+    
+    public void toggleBool()
+    {
+        if (selectedMachine.type == MachineType.Variable)
+        {
+            Var machine = selectedMachine.gameObject.GetComponent<Var>();
+            machine.toggleBool();
+        }
+    }
+
+    public void readDataInput()
+    {
+        string s = dataInputField.GetComponent<TMP_InputField>().text;
+        if (selectedMachine.type == MachineType.Variable)
+        {
+            Var machine = selectedMachine.gameObject.GetComponent<Var>();
+            if (machine.getDataType() == DataType.Int)
+            {
+                print("data int raw "+s);
+
+                int outInt;
+                bool response;
+                response = int.TryParse(s, out outInt);
+                if (response)
+                {
+                    dataInputField.GetComponent<Image>().color = Color.green;
+                    machine.setIntData(outInt);
+                    print("data int " + outInt);
+                }
+                else
+                {
+                    Debug.Log("Invalid input");
+                    if (string.IsNullOrEmpty(s))
+                    {
+                        dataInputField.GetComponent<Image>().color = Color.white;
+                    }
+                    else
+                    {
+                        dataInputField.GetComponent<Image>().color = Color.red;
+                    }
+                }
+            }
+            else if (machine.getDataType() == DataType.Float)
+            {
+                print("data float raw "+s);
+                float outFloat;
+                bool response;
+                response = float.TryParse(s, out outFloat);
+                if (response)
+                {
+                    dataInputField.GetComponent<Image>().color = Color.green;
+                    machine.setFloatData(outFloat);
+                    print("data float " + outFloat);
+                }
+                else
+                {
+                    Debug.Log("Invalid input");
+                    if (string.IsNullOrEmpty(s))
+                    {
+                        dataInputField.GetComponent<Image>().color = Color.white;
+                    }
+                    else
+                    {
+                        dataInputField.GetComponent<Image>().color = Color.red;
+                    }
+                }
+            }
+        }
     }
 }

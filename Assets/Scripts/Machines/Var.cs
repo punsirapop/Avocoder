@@ -9,7 +9,8 @@ public class Var : Machine
     public float floatData;
     public bool boolData;
 
-    public DataType dataType;
+    public List<DataType> possibleDataType = new List<DataType>() { DataType.Int,DataType.Float,DataType.Bool};
+    public int dataTypeIndex = 0;
 
     public override void GenerateGate()
     {
@@ -27,7 +28,17 @@ public class Var : Machine
 
     public void setDataType(DataType newDataType)
     {
-        dataType = newDataType;
+        int count = 0;
+        foreach (DataType dt in possibleDataType)
+        {
+
+            if (dt == newDataType)
+            {
+                dataTypeIndex = count;
+                break;
+            }
+            count++;
+        }
     }
 
     public void setIntData(int newIntData)
@@ -60,5 +71,18 @@ public class Var : Machine
         return boolData;
     }
 
+    public DataType getDataType()
+    {
+        return possibleDataType[dataTypeIndex];
+    }
 
+    public void toggleBool()
+    {
+        boolData = !boolData;
+    }
+    
+    public void toggleDataType()
+    {
+        dataTypeIndex = (dataTypeIndex + 1) % possibleDataType.Count;
+    }
 }
