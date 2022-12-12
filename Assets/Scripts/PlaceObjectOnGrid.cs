@@ -70,7 +70,6 @@ public class PlaceObjectOnGrid : MonoBehaviour
             smoothMousePosition = mousePosition;
             mousePosition = Vector3Int.RoundToInt(mousePosition);
             gridMousePosition = mousePosition;
-            print("clicked: " + mousePosition);
             foreach (var node in nodes)
             {
                 if (ConfigComponent.Instance.orderMode)
@@ -86,7 +85,6 @@ public class PlaceObjectOnGrid : MonoBehaviour
                 // mouse on empty grid
                 if (node.cellPosition == mousePosition && node.isPlacable)
                 {
-                    print("Cell pos: " + node.cellPosition + " and Mouse pos: " + mousePosition);
                     //(place machine)
                     if (Input.GetMouseButtonUp(0) && playerHolding != null)
                     {
@@ -140,7 +138,10 @@ public class PlaceObjectOnGrid : MonoBehaviour
 
                         print("removing chain");
                         Chain newChain = node.chainStart;
-                        newChain.removeThisChainFromList();
+                        if (newChain != null)
+                        {
+                            newChain.removeThisChainFromList();
+                        }
                         node.chainStart = null;
 
 

@@ -14,6 +14,7 @@ public class ConnectorManager : MonoBehaviour
     Machine machine;
     Machine target;
 
+
     public static List<Chain> chainsList = new List<Chain>();
 
 
@@ -26,8 +27,10 @@ public class ConnectorManager : MonoBehaviour
     }
     void Update()
     {
+        updateAllChains();
+
         // Reset belt
-        foreach(Transform t in storage)
+        foreach (Transform t in storage)
         {
             Destroy(t.gameObject);
         }
@@ -55,8 +58,9 @@ public class ConnectorManager : MonoBehaviour
                             {
                                 target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
                                 // Check if target is available for connection
-                                if (target != null && CheckGate(g.Value, Direction.South))
+                                if (target != null && CheckGate(g.Value, Direction.South, target))
                                 {
+                                    print("check north found target: "+target.name);
                                     Instantiate(connector, new Vector3(x, .3f, z - .5f), Quaternion.AngleAxis(90f, Vector3.up), storage);
                                 }
                             }
@@ -67,8 +71,9 @@ public class ConnectorManager : MonoBehaviour
                             {
                                 target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
                                 // Check if target is available for connection
-                                if (target != null && CheckGate(g.Value, Direction.West))
+                                if (target != null && CheckGate(g.Value, Direction.West, target))
                                 {
+                                    print("check east found target: " + target.name);
                                     Instantiate(connector, new Vector3(x - .5f, .3f, z), Quaternion.AngleAxis(0f, Vector3.up), storage);
                                 }
                             }
@@ -78,9 +83,11 @@ public class ConnectorManager : MonoBehaviour
                             if (z >= 0)
                             {
                                 target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
+                                
                                 // Check if target is available for connection
-                                if (target != null && CheckGate(g.Value, Direction.North))
+                                if (target != null && CheckGate(g.Value, Direction.North, target))
                                 {
+                                    print("check south found target: " + target.name);
                                     Instantiate(connector, new Vector3(x, .3f, z + .5f), Quaternion.AngleAxis(90f, Vector3.up), storage);
                                 }
                             }
@@ -91,8 +98,9 @@ public class ConnectorManager : MonoBehaviour
                             {
                                 target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
                                 // Check if target is available for connection
-                                if (target != null && CheckGate(g.Value, Direction.East))
+                                if (target != null && CheckGate(g.Value, Direction.East, target))
                                 {
+                                    print("check west found target: " + target.name);
                                     Instantiate(connector, new Vector3(x + .5f, .3f, z), Quaternion.AngleAxis(0f, Vector3.up), storage);
                                 }
                             }
@@ -104,38 +112,66 @@ public class ConnectorManager : MonoBehaviour
             }
         }
 
-        updateAllChains();
+        
     }
 
     // Check if opposing gate is valid
-    public bool CheckGate(Gate g, Direction d)
+    public bool CheckGate(Gate g, Direction d, Machine target)
     {
         bool ans = false;
+        bool ok = false;
+        bool inChain = true;
 
         if (!target.gateDict.ContainsKey(d)) return ans;
 
-        var firstNotSecond = g.dataTypeList.Except(target.gateDict[d].dataTypeList).ToList();
+        if (target.type == MachineType.Belt)
+        {
+            Belt b = target.gameObject.GetComponent<Belt>();
+            inChain = b.inChain;
+            Debug.Log("check " + d + " gate in chain?: " + inChain);
+        }
+
+        /*var firstNotSecond = g.dataTypeList.Except(target.gateDict[d].dataTypeList).ToList();
         var secondNotFirst = target.gateDict[d].dataTypeList.Except(g.dataTypeList).ToList();
-        bool ok = !firstNotSecond.Any() && !secondNotFirst.Any();
+        bool ok = !firstNotSecond.Any() && !secondNotFirst.Any();*/
+
+        foreach (DataType type in g.dataTypeList)
+        {
+            //Debug.Log("check west gate selected: " + type);
+            foreach (DataType targetType in target.gateDict[d].dataTypeList)
+            {
+                //Debug.Log("check west gate target: " + type);
+                if (type == targetType)
+                {
+                    Debug.Log("check "+d+" gate same type: " + type);
+                    ok = true;
+                    break;
+                }
+            }
+        }
+        Debug.Log("check "+ d+" gate belt: " + ok);
 
         switch (g.gateType)
         {
             case GateType.Entrance:
+
                 if ((target.gateDict[d].gateType == GateType.Exit && ok) ||
-                    target.gateDict[d].gateType == GateType.Belt)
+                    target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok))
                 {
                     ans = true;
                 }
                 break;
             case GateType.Exit:
                 if ((target.gateDict[d].gateType == GateType.Entrance && ok) ||
-                    target.gateDict[d].gateType == GateType.Belt)
+                    target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok))
                 {
                     ans = true;
                 }
                 break;
             case GateType.Belt:
-                if (target.gateDict[d].gateType == GateType.Belt)
+                if (target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok) ||
+                    target.gateDict[d].gateType == GateType.Entrance && !inChain || (inChain && ok) ||
+                    target.gateDict[d].gateType == GateType.Exit && !inChain || (inChain && ok))
                 {
                     ans = true;
                 }
@@ -143,17 +179,21 @@ public class ConnectorManager : MonoBehaviour
             default:
                 break;
         }
+        Debug.Log("check " + d + " gate belt ans: " + ans);
+        Debug.Log("1 Connecting to " + target.name + ": " + ans);
         return ans;
     }
 
     public void updateAllChains()
     {
+        resetBeltInChain();
         foreach (Chain chain in chainsList)
         {
             if (chain.exitDir != Direction.None)
             {
                 chain.reset();
                 chain.updateChain(chain.head, chain.exitDir, 0);
+
 
                 // for debugging
                 print("-----------------------");
@@ -167,11 +207,30 @@ public class ConnectorManager : MonoBehaviour
                     foreach (Machine m in machineList)
                     {
                         print(m.myName);
+                        if (m.type == MachineType.Belt)
+                        {
+                            foreach (Direction d in (Direction[])Enum.GetValues(typeof(Direction)))
+                            {
+                                if (d == Direction.None) break;
+                                string result = "     " + d + " dataType: ";
+                                foreach (var item in m.gateDict[d].dataTypeList)
+                                {
+                                    result += item.ToString() + ", ";
+                                }
+                                Debug.Log(result);
+                            }
+                        }
+
                         if (m.type != MachineType.Belt)
                         {
                             foreach (Direction d in chain.gatesOfMachineInChain[chainOrder][m.myName])
                             {
-                                print("     " + d);
+                                string result = "     " + d + " dataType: ";
+                                foreach (var item in m.gateDict[d].dataTypeList)
+                                {
+                                    result += item.ToString() + ", ";
+                                }
+                                Debug.Log(result);
                             }
                         }
                     }
@@ -179,10 +238,44 @@ public class ConnectorManager : MonoBehaviour
                 }
                 print("-----------------------");
             }
+            printBeltInChain();
             
         }
 
+
     }
+
+    public void resetBeltInChain()
+    {
+        foreach (GameObject machineObj in MachineActivationManager.allMachineList)
+        {
+            Machine m = machineObj.GetComponent<Machine>();
+            if (m.type == MachineType.Belt)
+            {
+                Belt b = machineObj.GetComponent<Belt>();
+                b.inChain = false;
+                b.GenerateGate();
+            }
+        }
+    }
+    public void printBeltInChain()
+    {
+        foreach (GameObject machineObj in MachineActivationManager.allMachineList)
+        {
+            Machine m = machineObj.GetComponent<Machine>();
+            if (m.type == MachineType.Belt)
+            {
+                Belt b = machineObj.GetComponent<Belt>();
+                if (b.inChain)
+                {
+                    Debug.Log("Belt in chain: "+b.myName);
+                }
+            }
+        }
+    }
+
+
+
 }
 
 
@@ -231,6 +324,8 @@ public class Chain
     public Dictionary<int, Dictionary<int,List<Direction>>> gatesOfMachineInChain = new Dictionary<int, Dictionary<int, List<Direction>>>();
     public Machine head;
     public Direction exitDir;
+    public Gate exitGate;
+    public List<Gate> allEntranceGates = new List<Gate>();
 
     public Chain(Machine headOfChain)
     {
@@ -265,6 +360,67 @@ public class Chain
         ConnectorManager.chainsList.Add(this);
     }
 
+    public void transferData()
+    {
+        if (head.type == MachineType.Variable)
+        {
+            Debug.Log("transfer variable");
+            Var variable = head.gameObject.GetComponent<Var>();
+            DataType dataType = variable.getDataType();
+            if (dataType == DataType.Int)
+            {
+                int intData = variable.getIntData();
+                assignAllEntranceGateWithThisData(DataType.Int, intData,0,false);
+                return;
+            }
+            else if (dataType == DataType.Float)
+            {
+                float floatData = variable.getFloatData();
+                assignAllEntranceGateWithThisData(DataType.Float, 0, floatData, false);
+                return;
+            }
+            else if (dataType == DataType.Bool)
+            {
+                bool boolData = variable.getBoolData();
+                assignAllEntranceGateWithThisData(DataType.Bool, 0, 0, boolData);
+                return;
+            }
+            
+        }
+        else if (head.type == MachineType.Comparison)
+        {
+            ComOp comOp = head.gameObject.GetComponent<ComOp>();
+            bool output = comOp.getOutput();
+            assignAllEntranceGateWithThisData(DataType.Bool, 0, 0, output);
+            return;
+        }
+        else if (head.type == MachineType.Numeric)
+        {
+            
+        }
+        else if (head.type == MachineType.Logical)
+        {
+            
+        }
+        
+    }
+    
+    public void assignAllEntranceGateWithThisData(DataType dataType, int intData, float floatData, bool boolData)
+    {
+        foreach (Gate g in allEntranceGates)
+        {
+            g.assignData(dataType, intData, floatData, boolData);
+            if (g.onVar)
+            {
+                Debug.Log("assign data to var");
+                g.onVar.setIntData(intData);
+                g.onVar.setFloatData(floatData);
+                g.onVar.setBoolData(boolData);
+            }
+        }
+    }
+
+
     public void removeThisChainFromList()
     {
         ConnectorManager.chainsList.Remove(this);
@@ -276,6 +432,22 @@ public class Chain
         if (machine.type == MachineType.Logical)
         {
             Debug.Log("found logical: "+machine.myName);
+        }
+
+        if (machine.type == MachineType.Belt)
+        {
+            Belt b = machine.gameObject.GetComponent<Belt>();
+            if (!b.inChain)
+            {
+                b.inChain = true;
+                foreach (Direction dir in (Direction[])Enum.GetValues(typeof(Direction)))
+                {
+                    if (dir != Direction.None && head.gateDict.ContainsKey(exitDir) && exitDir != Direction.None)
+                    {
+                        b.gateDict[dir].dataTypeList =  head.gateDict[exitDir].dataTypeList;
+                    }
+                }
+            }
         }
 
         tailID = placeOrderInChain;
@@ -307,6 +479,13 @@ public class Chain
             }
             
             gatesOfMachineInChain[placeOrderInChain][machine.myName].Add(gateDir);
+
+            Debug.Log("Before Adding entrance gate" + machine.gateDict[gateDir].gateType);
+            if (machine.gateDict[gateDir].gateType == GateType.Entrance)
+            {
+                Debug.Log("Adding entrance gate");
+                allEntranceGates.Add(machine.gateDict[gateDir]);
+            }
 
         }
     }
@@ -364,6 +543,7 @@ public class Chain
 
         bool hasConnection = false;
         bool continueChain = true;
+
         Direction dirWithConnection = Direction.None;
 
 
@@ -381,41 +561,7 @@ public class Chain
                 z++;
                 if (z <= 4)
                 {
-                    target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
-                    if (target == null) return;
-                    // Check if target is available for connection
-                    if (target != null && CheckGate(g, Direction.South, target))
-                    {
-                        dirWithConnection = Direction.South;
-                        Debug.Log("target found machine" + target.myName + "of type " + target.type + " at dir " + dirWithConnection);
-                        Debug.Log("target gate type" + target.gateDict[Direction.South].gateType);
-                        if (target.gateDict[Direction.South].gateType == GateType.Entrance)
-                        {
-                            Debug.Log("Found entrance gate");
-                            continueChain = false;
-                        }
-                        else if (target.gateDict[Direction.South].gateType == GateType.Exit)
-                        {
-                            continueChain = false;
-                            Debug.Log("!!!! Error exit connected to another exit!");
-                        }
-
-
-                        if (!machineNameList.Contains(target.myName))
-                        {
-                            addToChain(currentTailID, target, Direction.South);
-                            hasConnection = true;
-                        }
-                        else if (target.type != MachineType.Belt)
-                        {
-                            addToChain(currentTailID, target, Direction.South);
-                        }
-                        else
-                        {
-                            Debug.Log("!!!! Error loop in chain");
-                        }
-
-                    }
+                    checkDir(x, z, Direction.South, ref continueChain, ref currentTailID, ref target, ref dirWithConnection, ref g, ref hasConnection);
                 }
                 else return;
                 break;
@@ -423,46 +569,7 @@ public class Chain
                 x++;
                 if (x <= 4)
                 {
-                    target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
-                    if (target == null) return;
-                    // Check if target is available for connection
-                    if (target.type == MachineType.Logical)
-                    {
-                        if (CheckGate(g, Direction.West, target))
-                        {
-                            Debug.Log("Check gate of logical passed");
-                        }else Debug.Log("Check gate of logical not passed");
-                    }
-
-                    if (target != null && CheckGate(g, Direction.West,target))
-                    {
-                        dirWithConnection = Direction.West;
-                        Debug.Log("target found machine " + target.myName + "of type " + target.type + " at dir " + dirWithConnection);
-                        Debug.Log("target gate type" + target.gateDict[Direction.West].gateType);
-                        if (target.gateDict[Direction.West].gateType == GateType.Entrance)
-                        {
-                            Debug.Log("Found entrance gate");
-                            continueChain = false;
-                        }
-                        else if (target.gateDict[Direction.West].gateType == GateType.Exit)
-                        {
-                            continueChain = false;
-                            Debug.Log("!!!! Error exit connected to another exit!");
-                        }
-                        if (!machineNameList.Contains(target.myName))
-                        {
-                            addToChain(currentTailID, target, Direction.West);
-                            hasConnection = true;
-                        }
-                        else if (target.type != MachineType.Belt)
-                        {
-                            addToChain(currentTailID, target, Direction.West);
-                        }
-                        else
-                        {
-                            Debug.Log("!!!! Error loop in chain");
-                        }
-                    }
+                    checkDir(x, z, Direction.West, ref continueChain, ref currentTailID, ref target, ref dirWithConnection, ref g, ref hasConnection);
                 }
                 else return;
                 break;
@@ -470,39 +577,7 @@ public class Chain
                 z--;
                 if (z >= 0)
                 {
-                    target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
-                    if (target == null) return;
-                    // Check if target is available for connection
-                    if (target != null && CheckGate(g, Direction.North, target))
-                    {
-                        dirWithConnection = Direction.North;
-                        Debug.Log("target found machine" + target.myName + "of type " + target.type + " at dir " + dirWithConnection);
-                        Debug.Log("target gate type"+target.gateDict[Direction.North].gateType);
-                        if (target.gateDict[Direction.North].gateType == GateType.Entrance)
-                        {
-                            Debug.Log("Found entrance gate");
-                            continueChain = false;
-                        }
-                        else if (target.gateDict[Direction.North].gateType == GateType.Exit)
-                        {
-                            continueChain = false;
-                            Debug.Log("!!!! Error exit connected to another exit!");
-                        }
-                        if (!machineNameList.Contains(target.myName))
-                        {
-                            addToChain(currentTailID, target, Direction.North);
-                            hasConnection = true;
-                        }
-                        else if (target.type != MachineType.Belt)
-                        {
-                            addToChain(currentTailID, target, Direction.North);
-                        }
-                        else
-                        {
-                            Debug.Log("!!!! Error loop in chain");
-                        }
-
-                    }
+                    checkDir(x, z, Direction.North, ref continueChain, ref currentTailID, ref target, ref dirWithConnection, ref g, ref hasConnection);
                 }
                 else return;
                 break;
@@ -510,39 +585,7 @@ public class Chain
                 x--;
                 if (x >= 0)
                 {
-                    target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
-                    if (target == null) return;
-                    // Check if target is available for connection
-                    if (target != null && CheckGate(g, Direction.East, target))
-                    {
-                        dirWithConnection = Direction.East;
-                        Debug.Log("target found machine" + target.myName + "of type " + target.type + " at dir " + dirWithConnection);
-                        Debug.Log("target gate type"+target.gateDict[Direction.East].gateType);
-                        if (target.gateDict[Direction.East].gateType == GateType.Entrance)
-                        {
-                            Debug.Log("Found entrance gate");
-                            continueChain = false;
-                        }
-                        else if (target.gateDict[Direction.East].gateType == GateType.Exit)
-                        {
-                            continueChain = false;
-                            Debug.Log("!!!! Error exit connected to another exit!");
-                        }
-                        if (!machineNameList.Contains(target.myName))
-                        {
-                            addToChain(currentTailID, target, Direction.East);
-                            hasConnection = true;
-                        }
-                        else if (target.type != MachineType.Belt)
-                        {
-                            addToChain(currentTailID, target, Direction.East);
-                        }
-                        else
-                        {
-                            Debug.Log("!!!! Error loop in chain");
-                        }
-
-                    }
+                    checkDir(x, z, Direction.East, ref continueChain, ref currentTailID, ref target, ref dirWithConnection, ref g, ref hasConnection);
                 }
                 else return;
                 break;
@@ -563,38 +606,102 @@ public class Chain
         }
     }
 
+    public void checkDir(int x, int z, Direction dir, ref bool continueChain, ref int currentTailID, ref Machine target, ref Direction dirWithConnection, ref Gate g, ref bool hasConnection)
+    {
+        target = PlaceObjectOnGrid.Instance.nodes[x, z].thingPlaced?.GetComponent<Machine>();
+        if (target == null) return;
+
+        // Check if target is available for connection
+        if ((target != null && CheckGate(g, dir, target)))
+        {
+            dirWithConnection = dir;
+            Debug.Log("target found machine" + target.myName + "of type " + target.type + " at dir " + dirWithConnection);
+            Debug.Log("target gate type" + target.gateDict[dir].gateType);
+            if (target.gateDict[dir].gateType == GateType.Entrance)
+            {
+                Debug.Log("Found entrance gate");
+                continueChain = false;
+            }
+            else if (target.gateDict[dir].gateType == GateType.Exit)
+            {
+                continueChain = false;
+                Debug.Log("!!!! Error exit connected to another exit!");
+            }
+
+
+            if (!machineNameList.Contains(target.myName))
+            {
+                addToChain(currentTailID, target, dir);
+                hasConnection = true;
+            }
+            else if (target.type != MachineType.Belt)
+            {
+                addToChain(currentTailID, target, dir);
+            }
+            else
+            {
+                Debug.Log("!!!! Error loop in chain");
+            }
+        }
+    }
+
 
     // Check if opposing gate is valid
-    public bool CheckGate(Gate g, Direction d,Machine target)
+    public bool CheckGate(Gate g, Direction d, Machine target)
     {
         bool ans = false;
+        bool ok = false;
+        bool inChain = true;
 
         if (!target.gateDict.ContainsKey(d)) return ans;
 
-        var firstNotSecond = g.dataTypeList.Except(target.gateDict[d].dataTypeList).ToList();
+        if (target.type == MachineType.Belt)
+        {
+            Belt b = target.gameObject.GetComponent<Belt>();
+            inChain = b.inChain;
+        }
+
+        /*var firstNotSecond = g.dataTypeList.Except(target.gateDict[d].dataTypeList).ToList();
         var secondNotFirst = target.gateDict[d].dataTypeList.Except(g.dataTypeList).ToList();
-        bool ok = !firstNotSecond.Any() && !secondNotFirst.Any();
+        bool ok = !firstNotSecond.Any() && !secondNotFirst.Any();*/
+
+        foreach (DataType type in g.dataTypeList)
+        {
+            Debug.Log("check chain selected: " + type);
+            foreach (DataType targetType in target.gateDict[d].dataTypeList)
+            {
+                Debug.Log("check chain target: " + type);
+                if (type == targetType)
+                {
+                    Debug.Log("check chain same type: " + type);
+                    ok = true;
+                    break;
+                }
+            }
+        }
+        Debug.Log("check chain belt: " + ok);
 
         switch (g.gateType)
         {
             case GateType.Entrance:
+
                 if ((target.gateDict[d].gateType == GateType.Exit && ok) ||
-                    target.gateDict[d].gateType == GateType.Belt)
+                    target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok))
                 {
                     ans = true;
                 }
                 break;
             case GateType.Exit:
                 if ((target.gateDict[d].gateType == GateType.Entrance && ok) ||
-                    target.gateDict[d].gateType == GateType.Belt)
+                    target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok))
                 {
                     ans = true;
                 }
                 break;
             case GateType.Belt:
-                if (target.gateDict[d].gateType == GateType.Belt ||
-                    target.gateDict[d].gateType == GateType.Entrance ||
-                    target.gateDict[d].gateType == GateType.Exit)
+                if (target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok) ||
+                    target.gateDict[d].gateType == GateType.Entrance && !inChain || (inChain && ok) ||
+                    target.gateDict[d].gateType == GateType.Exit && !inChain || (inChain && ok))
                 {
                     ans = true;
                 }
@@ -602,6 +709,7 @@ public class Chain
             default:
                 break;
         }
+        Debug.Log("2 Connecting to "+target.name+": "+ans);
         return ans;
     }
 
@@ -621,6 +729,8 @@ public class Chain
         gatesOfMachineInChain[0][head.myName].Add(exitGateDir);
         exitDir = exitGateDir;
         tailID = 0;
+
+        allEntranceGates.Clear();
     }
 }
 

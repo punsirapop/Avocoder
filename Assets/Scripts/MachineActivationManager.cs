@@ -11,7 +11,6 @@ public class MachineActivationManager : MonoBehaviour
     public static List<GameObject> activatedMachineList = new List<GameObject>();
     public int startOrder = 1;
 
-
     private void Awake()
     {
         if (Instance == null)
@@ -53,6 +52,7 @@ public class MachineActivationManager : MonoBehaviour
         int index = 0;
         while (index < allOrderManagerList.Count)
         {
+            Debug.Log("Doing order manager " + index);
             allOrderManagerList[index].activateCurrentOrder();
             index++;
         }
@@ -60,19 +60,20 @@ public class MachineActivationManager : MonoBehaviour
         {
             orderManager.activateCurrentOrder();
         }*/
-        waitAllMachineDone();
+        //waitAllMachineDone();
         endOfOrderReset();
     }
 
-    public void waitAllMachineDone()
+    /*public void waitAllMachineDone()
     {
 
-    }
+    }*/
+
+    
 
     void endOfOrderReset()
     {
         // reset all the temp list used
-        activatedMachineList.Clear();
         allOrderManagerList.Clear();
         addOrderManager(1);
 
@@ -121,7 +122,21 @@ public class MachineActivationManager : MonoBehaviour
 
         public void activateCurrentOrder()
         {
+            print("Doing order " + currentOrder);
             List<GameObject>  machinesToActivate = getMachinesWithCurrentOrder();
+
+            if (currentOrder > 100)
+            {
+                return;
+            }
+
+            if (machinesToActivate.Count == 0)
+            {
+                Debug.Log("No more machine to activate");
+                currentOrder++;
+                activateCurrentOrder();
+                return;
+            }
             // send signal to machine in current order
             foreach (GameObject machine in machinesToActivate)
             {
@@ -138,7 +153,18 @@ public class MachineActivationManager : MonoBehaviour
                     activatedMachineList.Add(machine);
                 }
             }
+            transferAllData();
+            activatedMachineList.Clear();
             currentOrder++;
+            activateCurrentOrder();
+        }
+
+        public void transferAllData()
+        {
+            foreach (Chain chain in ConnectorManager.chainsList)
+            {
+                chain.transferData();
+            }
         }
 
         public void activateMachine(GameObject machine)

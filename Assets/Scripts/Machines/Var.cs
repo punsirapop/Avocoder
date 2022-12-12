@@ -15,11 +15,11 @@ public class Var : Machine
     public override void GenerateGate()
     {
         List<DataType> dt = new List<DataType>();
-
-        // AssignGate(new Gate(GateType.None, Direction.North, dt), Direction.North);
-        // AssignGate(new Gate(GateType.None, Direction.East, dt), Direction.East);
-        // AssignGate(new Gate(GateType.None, Direction.South, dt), Direction.South);
-        // AssignGate(new Gate(GateType.None, Direction.West, dt), Direction.West);
+        
+        AssignGate(new Gate(GateType.None, Direction.North, possibleDataType, this), Direction.North);
+        AssignGate(new Gate(GateType.None, Direction.East, possibleDataType, this), Direction.East);
+        AssignGate(new Gate(GateType.None, Direction.South, possibleDataType, this), Direction.South);
+        AssignGate(new Gate(GateType.None, Direction.West, possibleDataType, this), Direction.West);
     }
     public override void activate()
     {

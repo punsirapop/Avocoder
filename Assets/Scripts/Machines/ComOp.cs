@@ -6,6 +6,7 @@ public class ComOp : Machine
 {
     List<string> availableSigns = new List<string>() { ">" , "<", "==", ">=","<=","!="};
     int selectedSignIndex = 0;
+    public bool output;
     public override void GenerateGate()
     {
         List<DataType> dt = new List<DataType>();
@@ -29,6 +30,131 @@ public class ComOp : Machine
     public override void activate()
     {
         print("comparison operator activated");
+        Gate left = gateDict[Direction.West];
+        Gate right = gateDict[Direction.East];
+        int leftIntData;
+        float leftFloatData;
+        bool leftBoolData;
+        int rightIntData;
+        float rightFloatData;
+        bool rightBoolData;
+        DataType leftDataType = left.getData(out leftIntData,out leftFloatData,out leftBoolData);
+        DataType rightDataType = right.getData(out rightIntData, out rightFloatData, out rightBoolData);
+        if (leftDataType == DataType.Int)
+        {
+            if (rightDataType == DataType.Int)
+            {
+                if (availableSigns[selectedSignIndex] == ">")
+                {
+                    output = leftIntData > rightIntData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "<")
+                {
+                    output = leftIntData < rightIntData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "==")
+                {
+                    output = leftIntData == rightIntData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == ">=")
+                {
+                    output = leftIntData >= rightIntData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "<=")
+                {
+                    output = leftIntData <= rightIntData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "!=")
+                {
+                    output = leftIntData != rightIntData ? true : false;
+                }
+            }
+            else if (rightDataType == DataType.Float)
+            {
+                if (availableSigns[selectedSignIndex] == ">")
+                {
+                    output = leftIntData > rightFloatData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "<")
+                {
+                    output = leftIntData < rightFloatData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "==")
+                {
+                    output = leftIntData == rightFloatData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == ">=")
+                {
+                    output = leftIntData >= rightFloatData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "<=")
+                {
+                    output = leftIntData <= rightFloatData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "!=")
+                {
+                    output = leftIntData != rightFloatData ? true : false;
+                }
+            }
+        }
+        else if (leftDataType == DataType.Float)
+        {
+            if (rightDataType == DataType.Int)
+            {
+                if (availableSigns[selectedSignIndex] == ">")
+                {
+                    output = leftFloatData > rightIntData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "<")
+                {
+                    output = leftFloatData < rightIntData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "==")
+                {
+                    output = leftFloatData == rightIntData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == ">=")
+                {
+                    output = leftFloatData >= rightIntData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "<=")
+                {
+                    output = leftFloatData <= rightIntData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "!=")
+                {
+                    output = leftFloatData != rightIntData ? true : false;
+                }
+            }
+            else if (rightDataType == DataType.Float)
+            {
+                if (availableSigns[selectedSignIndex] == ">")
+                {
+                    output = leftFloatData > rightFloatData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "<")
+                {
+                    output = leftFloatData < rightFloatData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "==")
+                {
+                    output = leftFloatData == rightFloatData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == ">=")
+                {
+                    output = leftFloatData >= rightFloatData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "<=")
+                {
+                    output = leftFloatData <= rightFloatData ? true : false;
+                }
+                else if (availableSigns[selectedSignIndex] == "!=")
+                {
+                    output = leftFloatData != rightFloatData ? true : false;
+                }
+            }
+        }
+
     }
 
     public void toggleSign()
@@ -38,5 +164,10 @@ public class ComOp : Machine
     public string getCurrentSign()
     {
         return availableSigns[selectedSignIndex];
+    }
+
+    public bool getOutput()
+    {
+        return output;
     }
 }

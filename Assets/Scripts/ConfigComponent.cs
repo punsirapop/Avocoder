@@ -76,6 +76,7 @@ public class ConfigComponent : MonoBehaviour
         {
             variableConfigTab.SetActive(true);
             comparisonConfigTab.SetActive(false);
+            refillInputField();
         }
         else if (selectedMachine.type == MachineType.Comparison)
         {
@@ -95,6 +96,11 @@ public class ConfigComponent : MonoBehaviour
         configTab.SetActive(false);
         configuring = false;
         gameObject.SetActive(false);
+
+        if (selectedMachine.type == MachineType.Variable)
+        {
+            emptyInputField();
+        }
     }
 
     public void updateGateDisplay()
@@ -233,6 +239,7 @@ public class ConfigComponent : MonoBehaviour
     }
     public void toggleGate(string direction)
     {
+        Node currentNode = PlaceObjectOnGrid.Instance.GetNode(selectedMachine.transform);
         // String to enum
         Direction directionEnum = (Direction)System.Enum.Parse(typeof(Direction), direction);
         List<GateType> availableGates = new List<GateType>() {GateType.None,GateType.Entrance,GateType.Exit};
@@ -255,8 +262,13 @@ public class ConfigComponent : MonoBehaviour
 
         GateType newGateType = availableGates[newGateIndex];
 
-
-        if (newGateType == GateType.None)
+        if (selectedMachine.type == MachineType.Variable)
+        {
+            Var variableMachine = selectedMachine.gameObject.GetComponent<Var>();
+            print("Change gate on variable to type: "+variableMachine.getDataType());
+            newDataType = new List<DataType>() { variableMachine.getDataType() };
+        }
+        else if (newGateType == GateType.None)
         {
             newDataType = new List<DataType>() { };
         }
@@ -278,8 +290,40 @@ public class ConfigComponent : MonoBehaviour
             selectedMachine.gateDict[directionEnum].changeGateType(newGateType);
         }
 
-        Node currentNode = PlaceObjectOnGrid.Instance.GetNode(selectedMachine.transform);
+
+        if (newGateType == GateType.None)
+        {
+            print("removing chain");
+            Chain newChain = currentNode.chainStart;
+            if (newChain != null)
+            {
+                newChain.removeThisChainFromList();
+            }
+            currentNode.chainStart = null;
+        }
+        else if (newGateType == GateType.Entrance)
+        {
+            print("removing chain");
+            Chain newChain = currentNode.chainStart;
+            if (newChain != null)
+            {
+                newChain.removeThisChainFromList();
+            }
+            currentNode.chainStart = null;
+        }
+        else if (newGateType == GateType.Exit)
+        {
+            print("Creating chain");
+            Machine machine = currentNode.thingPlaced.GetComponent<Machine>();
+            Chain newChain = new Chain(machine);
+            currentNode.chainStart = newChain;
+        }
+
+
+
         MachineDetailDisplay.Instance.SetSelection(currentNode);
+
+        
 
     }
 
@@ -296,6 +340,10 @@ public class ConfigComponent : MonoBehaviour
             Var machine = selectedMachine.gameObject.GetComponent<Var>();
             machine.toggleDataType();
             readDataInput();
+            foreach (Gate g in machine.gateDict.Values)
+            {
+                g.dataTypeList = new List<DataType>() { machine.getDataType() };
+            }
         }
     }
     
@@ -400,7 +448,7 @@ public class ConfigComponent : MonoBehaviour
             if (currentMachine.type == MachineType.Belt) return;
 
             int currentOrder = currentMachine.order;
-            currentMachine.order = currentOrder + 1;
+            currentMachine.order = Math.Min(currentOrder + 1, 100);
             n.orderDisplay.GetComponent<TextMeshPro>().text = ""+ currentMachine.order;
         }
     }
@@ -420,4 +468,40 @@ public class ConfigComponent : MonoBehaviour
             
         }
     }
+
+    public void emptyInputField()
+    {
+        dataInputField.GetComponent<TMP_InputField>().text = "";
+        dataInputField.GetComponent<Image>().color = Color.white;
+    }
+
+    public void refillInputField()
+    {
+        DataType dataType = selectedMachine.gameObject.GetComponent<Var>().getDataType();
+        TMP_InputField textField = dataInputField.GetComponent<TMP_InputField>();
+
+
+        if (selectedMachine.type == MachineType.Variable)
+        {
+            if (dataType == DataType.Int)
+            {
+                textField.text = "" + selectedMachine.gameObject.GetComponent<Var>().getIntData();
+            }
+            else if (dataType == DataType.Float)
+            {
+                textField.text = "" + selectedMachine.gameObject.GetComponent<Var>().getFloatData();
+            }
+            else if (dataType == DataType.Bool)
+            {
+                textField.text = "" + selectedMachine.gameObject.GetComponent<Var>().getBoolData();
+            }
+            else
+            {
+                dataInputField.GetComponent<TMP_InputField>().text = "";
+            }
+
+        }
+        
+    }
+
 }

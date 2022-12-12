@@ -51,18 +51,43 @@ public class Gate
     public GateType gateType;
     public List<DataType> dataTypeList;
     public Transform connection;
-
-    public Gate(GateType gt, Direction d, List<DataType> dt)
+    public int intData;
+    public float floatData;
+    public bool boolData;
+    public DataType currentDataType;
+    public Var onVar;
+    
+    public Gate(GateType gt, Direction d, List<DataType> dt, Var variable = null)
     {
         gateType = gt;
         direction = d;
         dataTypeList = dt;
         connection = null;
+        onVar = variable;
     }
 
     public void changeGateType(GateType newType)
     {
         gateType = newType;
+    }
+    
+    public void assignData(DataType dataType,int intData, float floatData, bool boolData)
+    {
+        currentDataType = dataType;
+        if (DataType.Int == dataType)
+            this.intData = intData;
+        else if (DataType.Float == dataType)
+            this.floatData = floatData;
+        else if (DataType.Bool == dataType)
+            this.boolData = boolData;
+    }
+
+    public DataType getData(out int intData, out float floatData, out bool boolData)
+    {
+        intData = this.intData;
+        floatData = this.floatData;
+        boolData = this.boolData;
+        return currentDataType;
     }
 }
 
