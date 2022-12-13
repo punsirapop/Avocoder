@@ -8,7 +8,7 @@ using System;
 
 public class ConfigComponent : MonoBehaviour
 {
-    Machine selectedMachine;
+    public Machine selectedMachine;
 
     public Image NorthGateDisplay, SouthGateDisplay, EastGateDisplay, WestGateDisplay, VariableTypeDisplay, ComparisonSignDisplay, boolDisplay, numOperatorDisplay, logicalSignDisplay;
     public Sprite inputSprite, outputSprite, noneSprite, beltConnectSprite;
@@ -59,18 +59,26 @@ public class ConfigComponent : MonoBehaviour
         {
             updateVariableDisplay();
             updateBoolDisplay();
+            Var variable = selectedMachine.gameObject.GetComponent<Var>();
+            variable.updateCenterDisplay();
         }
         else if (selectedMachine.type == MachineType.Comparison)
         {
             updateComparisonDisplay();
+            ComOp comOp = selectedMachine.gameObject.GetComponent<ComOp>();
+            comOp.updateCenterDisplay();
         }
         else if (selectedMachine.type == MachineType.Numeric)
         {
             updateNumOpDisplay();
+            NumOp numOp = selectedMachine.gameObject.GetComponent<NumOp>();
+            numOp.updateCenterDisplay();
         }
         else if (selectedMachine.type == MachineType.Logical)
         {
             updateLogicallDisplay();
+            LogOp logOp = selectedMachine.gameObject.GetComponent<LogOp>();
+            logOp.updateCenterDisplay();
         }
     }
 

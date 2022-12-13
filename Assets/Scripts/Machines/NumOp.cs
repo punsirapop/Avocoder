@@ -157,4 +157,13 @@ public class NumOp : Machine
     {
         return output;
     }
+
+
+    public void updateCenterDisplay()
+    {
+        centerDisplay.text = getCurrentSign();
+    }
+
+
+
 }

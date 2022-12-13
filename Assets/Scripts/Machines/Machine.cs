@@ -1,6 +1,7 @@
  using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public enum MachineType
 {
@@ -102,6 +103,8 @@ abstract public class Machine : MonoBehaviour
 
     [SerializeField] Transform[] gatePos;
     [SerializeField] Material[] gateMat;
+
+    public TextMeshPro centerDisplay;
 
     private void Awake()
     {

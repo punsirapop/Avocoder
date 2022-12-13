@@ -62,6 +62,14 @@ public class MachineActivationManager : MonoBehaviour
         }*/
         //waitAllMachineDone();
         endOfOrderReset();
+        foreach (GameObject machineObj in allMachineList)
+        {
+            //PlaceObjectOnGrid.Instance.selectedMachineForConfig = machineObj.transform;
+            ConfigComponent.Instance.selectedMachine =  machineObj.GetComponent<Machine>();
+            ConfigComponent.Instance.updateConfigForSelectedMachine();
+        }
+
+
     }
 
     /*public void waitAllMachineDone()

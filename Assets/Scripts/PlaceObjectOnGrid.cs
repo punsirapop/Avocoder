@@ -174,6 +174,8 @@ public class PlaceObjectOnGrid : MonoBehaviour
         if (playerHolding == null)
         {
             playerHolding = Instantiate(components[index], mousePosition, Quaternion.identity);
+            playerHolding.gameObject.GetComponent<Machine>().centerDisplay =  playerHolding.gameObject.GetComponentInChildren<TextMeshPro>();
+
             if (!MachineActivationManager.allMachineList.Contains(playerHolding.gameObject))
             {
                 MachineActivationManager.allMachineList.Add(playerHolding.gameObject);

@@ -85,4 +85,20 @@ public class Var : Machine
     {
         dataTypeIndex = (dataTypeIndex + 1) % possibleDataType.Count;
     }
+
+    public void updateCenterDisplay()
+    {
+        if (possibleDataType[dataTypeIndex] == DataType.Int)
+        {
+            centerDisplay.text = intData.ToString();
+        }
+        else if (possibleDataType[dataTypeIndex] == DataType.Float)
+        {
+            centerDisplay.text = floatData.ToString();
+        }
+        else if (possibleDataType[dataTypeIndex] == DataType.Bool)
+        {
+            centerDisplay.text = boolData.ToString();
+        }
+    }
 }

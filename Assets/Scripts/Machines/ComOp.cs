@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class ComOp : Machine
 {
@@ -170,4 +171,11 @@ public class ComOp : Machine
     {
         return output;
     }
+
+    public void updateCenterDisplay()
+    {
+        centerDisplay.text = availableSigns[selectedSignIndex];
+    }
+
+
 }

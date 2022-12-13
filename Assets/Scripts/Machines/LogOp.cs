@@ -9,6 +9,7 @@ public class LogOp : Machine
     List<string> availableLogicalOperator = new List<string>() { "and", "or" };
     int selectedOperatorIndex = 0;
     public bool output;
+    
     public override void GenerateGate()
     {
         List<DataType> dt = new List<DataType>();
@@ -63,6 +64,11 @@ public class LogOp : Machine
     public bool getOutput()
     {
         return output;
+    }
+
+    public void updateCenterDisplay()
+    {
+        centerDisplay.text = getCurrentSign();
     }
 
 
