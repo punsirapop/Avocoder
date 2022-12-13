@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class LogOp : Machine
 {
-    public bool activated = false;
-    public LogicalOperator operatorSelected;
-
+    List<string> availableLogicalOperator = new List<string>() { "and", "or" };
+    int selectedOperatorIndex = 0;
+    public bool output;
     public override void GenerateGate()
     {
         List<DataType> dt = new List<DataType>();
@@ -25,39 +25,44 @@ public class LogOp : Machine
         AssignGate(new Gate(GateType.Exit, Direction.South, dt), Direction.South);
     }
 
-    public void selectOperator(LogicalOperator opSelected)
-    {
-        operatorSelected = opSelected;
-    }
-
     public override void activate()
     {
-        print("logical operator activated");
-        if (operatorSelected == LogicalOperator.And)
-        {
+        print("comparison operator activated");
+        Gate left = gateDict[Direction.West];
+        Gate right = gateDict[Direction.East];
+        int leftIntData;
+        float leftFloatData;
+        bool leftBoolData;
+        int rightIntData;
+        float rightFloatData;
+        bool rightBoolData;
+        DataType leftDataType = left.getData(out leftIntData, out leftFloatData, out leftBoolData);
+        DataType rightDataType = right.getData(out rightIntData, out rightFloatData, out rightBoolData);
 
-        }
-        else if (operatorSelected == LogicalOperator.Or)
+        if (availableLogicalOperator[selectedOperatorIndex] == "and")
         {
-
+            output = leftBoolData && rightBoolData;
         }
-        activated = true;
+        else if (availableLogicalOperator[selectedOperatorIndex] == "or")
+        {
+            output = leftBoolData || rightBoolData;
+        }
+
     }
 
-    public void acceptInput()
+
+    public void toggleSign()
     {
-        foreach (KeyValuePair<Direction, Gate> gate in gateDict)
-        {
-            
-        }
+        selectedOperatorIndex = (selectedOperatorIndex + 1) % availableLogicalOperator.Count;
+    }
+    public string getCurrentSign()
+    {
+        return availableLogicalOperator[selectedOperatorIndex];
     }
 
-    public void releaseOutput()
+    public bool getOutput()
     {
-        foreach (KeyValuePair<Direction, Gate> gate in gateDict)
-        {
-
-        }
+        return output;
     }
 
 

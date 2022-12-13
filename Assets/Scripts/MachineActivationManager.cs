@@ -125,7 +125,7 @@ public class MachineActivationManager : MonoBehaviour
             print("Doing order " + currentOrder);
             List<GameObject>  machinesToActivate = getMachinesWithCurrentOrder();
 
-            if (currentOrder > 100)
+            if (currentOrder > 30)
             {
                 return;
             }

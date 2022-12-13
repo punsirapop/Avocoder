@@ -122,7 +122,9 @@ public class ConnectorManager : MonoBehaviour
         bool ok = false;
         bool inChain = true;
 
+
         if (!target.gateDict.ContainsKey(d)) return ans;
+
 
         if (target.type == MachineType.Belt)
         {
@@ -143,7 +145,7 @@ public class ConnectorManager : MonoBehaviour
                 //Debug.Log("check west gate target: " + type);
                 if (type == targetType)
                 {
-                    Debug.Log("check "+d+" gate same type: " + type);
+                    Debug.Log("check "+d+" gate same data type: " + type);
                     ok = true;
                     break;
                 }
@@ -156,22 +158,22 @@ public class ConnectorManager : MonoBehaviour
             case GateType.Entrance:
 
                 if ((target.gateDict[d].gateType == GateType.Exit && ok) ||
-                    target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok))
+                    (target.gateDict[d].gateType == GateType.Belt && (!inChain || (inChain && ok))))
                 {
                     ans = true;
                 }
                 break;
             case GateType.Exit:
                 if ((target.gateDict[d].gateType == GateType.Entrance && ok) ||
-                    target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok))
+                    (target.gateDict[d].gateType == GateType.Belt && (!inChain || (inChain && ok))))
                 {
                     ans = true;
                 }
                 break;
             case GateType.Belt:
-                if (target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok) ||
-                    target.gateDict[d].gateType == GateType.Entrance && !inChain || (inChain && ok) ||
-                    target.gateDict[d].gateType == GateType.Exit && !inChain || (inChain && ok))
+                if ((target.gateDict[d].gateType == GateType.Belt && (!inChain || (inChain && ok))) ||
+                    (target.gateDict[d].gateType == GateType.Entrance && (!inChain || (inChain && ok))) ||
+                    (target.gateDict[d].gateType == GateType.Exit && (!inChain || (inChain && ok))))
                 {
                     ans = true;
                 }
@@ -181,6 +183,8 @@ public class ConnectorManager : MonoBehaviour
         }
         Debug.Log("check " + d + " gate belt ans: " + ans);
         Debug.Log("1 Connecting to " + target.name + ": " + ans);
+        Debug.Log("1 Connecting gate " + g.gateType + " to " + target.gateDict[d].gateType + ": " + ans);
+
         return ans;
     }
 
@@ -396,11 +400,17 @@ public class Chain
         }
         else if (head.type == MachineType.Numeric)
         {
-            
+            NumOp numOp = head.gameObject.GetComponent<NumOp>();
+            float output = numOp.getOutput();
+            assignAllEntranceGateWithThisData(DataType.Float, (int)output, output, false);
+            return;
         }
         else if (head.type == MachineType.Logical)
         {
-            
+            LogOp logOp = head.gameObject.GetComponent<LogOp>();
+            bool output = logOp.getOutput();
+            assignAllEntranceGateWithThisData(DataType.Float, 0, 0, output);
+            return;
         }
         
     }
@@ -686,22 +696,22 @@ public class Chain
             case GateType.Entrance:
 
                 if ((target.gateDict[d].gateType == GateType.Exit && ok) ||
-                    target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok))
+                    (target.gateDict[d].gateType == GateType.Belt && (!inChain || (inChain && ok))))
                 {
                     ans = true;
                 }
                 break;
             case GateType.Exit:
                 if ((target.gateDict[d].gateType == GateType.Entrance && ok) ||
-                    target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok))
+                    (target.gateDict[d].gateType == GateType.Belt && (!inChain || (inChain && ok))))
                 {
                     ans = true;
                 }
                 break;
             case GateType.Belt:
-                if (target.gateDict[d].gateType == GateType.Belt && !inChain || (inChain && ok) ||
-                    target.gateDict[d].gateType == GateType.Entrance && !inChain || (inChain && ok) ||
-                    target.gateDict[d].gateType == GateType.Exit && !inChain || (inChain && ok))
+                if (target.gateDict[d].gateType == GateType.Belt && (!inChain || (inChain && ok)) ||
+                    (target.gateDict[d].gateType == GateType.Entrance && (!inChain || (inChain && ok))) ||
+                    (target.gateDict[d].gateType == GateType.Exit && (!inChain || (inChain && ok))))
                 {
                     ans = true;
                 }

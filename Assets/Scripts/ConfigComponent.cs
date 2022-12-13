@@ -10,11 +10,13 @@ public class ConfigComponent : MonoBehaviour
 {
     Machine selectedMachine;
 
-    public Image NorthGateDisplay, SouthGateDisplay, EastGateDisplay, WestGateDisplay, VariableTypeDisplay, ComparisonSignDisplay, boolDisplay;
+    public Image NorthGateDisplay, SouthGateDisplay, EastGateDisplay, WestGateDisplay, VariableTypeDisplay, ComparisonSignDisplay, boolDisplay, numOperatorDisplay, logicalSignDisplay;
     public Sprite inputSprite, outputSprite, noneSprite, beltConnectSprite;
     public Sprite intImg, floatImg, boolImg, trueImg, falseImg;
     public Sprite gt, lt, eq, neq, gteq, lteg;
-    public GameObject configTab, variableConfigTab, comparisonConfigTab;
+    public Sprite add, subtract, multiply, diivde, modulus;
+    public Sprite and, or;
+    public GameObject configTab, variableConfigTab, comparisonConfigTab,numOpConfigTab,logOpConfigTab;
     public GameObject dataInputField, boolDataToggle;
     public GameObject orderModeInstructionDisplay;
 
@@ -30,6 +32,7 @@ public class ConfigComponent : MonoBehaviour
             Instance = this;
         }
     }
+    public bool e = true || true;
 
     // Update is called once per frame
     void Update()
@@ -61,6 +64,14 @@ public class ConfigComponent : MonoBehaviour
         {
             updateComparisonDisplay();
         }
+        else if (selectedMachine.type == MachineType.Numeric)
+        {
+            updateNumOpDisplay();
+        }
+        else if (selectedMachine.type == MachineType.Logical)
+        {
+            updateLogicallDisplay();
+        }
     }
 
     public void openConfig()
@@ -76,13 +87,33 @@ public class ConfigComponent : MonoBehaviour
         {
             variableConfigTab.SetActive(true);
             comparisonConfigTab.SetActive(false);
+            numOpConfigTab.SetActive(false);
+            logOpConfigTab.SetActive(false);
             refillInputField();
         }
         else if (selectedMachine.type == MachineType.Comparison)
         {
             comparisonConfigTab.SetActive(true);
             variableConfigTab.SetActive(false);
+            numOpConfigTab.SetActive(false);
+            logOpConfigTab.SetActive(false);
 
+
+        }
+        else if (selectedMachine.type == MachineType.Numeric)
+        {
+            numOpConfigTab.SetActive(true);
+            comparisonConfigTab.SetActive(false);
+            variableConfigTab.SetActive(false);
+            logOpConfigTab.SetActive(false);
+
+        }
+        else if (selectedMachine.type == MachineType.Logical)
+        {
+            logOpConfigTab.SetActive(true);
+            comparisonConfigTab.SetActive(false);
+            numOpConfigTab.SetActive(false);
+            variableConfigTab.SetActive(false);
         }
 
         configuring = true;
@@ -92,6 +123,7 @@ public class ConfigComponent : MonoBehaviour
     public void closeConfig()
     {
         variableConfigTab.SetActive(false);
+        numOpConfigTab.SetActive(false);
         comparisonConfigTab.SetActive(false);
         configTab.SetActive(false);
         configuring = false;
@@ -208,6 +240,46 @@ public class ConfigComponent : MonoBehaviour
         else if (currentSign == "<=")
         {
             ComparisonSignDisplay.sprite = lteg;
+        }
+    }
+
+    public void updateNumOpDisplay()
+    {
+        NumOp machine = selectedMachine.gameObject.GetComponent<NumOp>();
+        string currentSign = machine.getCurrentSign();
+        if (currentSign == "+")
+        {
+            numOperatorDisplay.sprite = add;
+        }
+        else if (currentSign == "-")
+        {
+            numOperatorDisplay.sprite = subtract;
+        }
+        else if (currentSign == "*")
+        {
+            numOperatorDisplay.sprite = multiply;
+        }
+        else if (currentSign == "/")
+        {
+            numOperatorDisplay.sprite = diivde;
+        }
+        else if (currentSign == "%")
+        {
+            numOperatorDisplay.sprite = modulus;
+        }
+    }
+
+    public void updateLogicallDisplay()
+    {
+        LogOp machine = selectedMachine.gameObject.GetComponent<LogOp>();
+        string currentSign = machine.getCurrentSign();
+        if (currentSign == "and")
+        {
+            logicalSignDisplay.sprite = and;
+        }
+        else if (currentSign == "or")
+        {
+            logicalSignDisplay.sprite = or;
         }
     }
 
@@ -333,6 +405,18 @@ public class ConfigComponent : MonoBehaviour
         machine.toggleSign();        
     }
 
+    public void toggleNumericSign()
+    {
+        NumOp machine = selectedMachine.gameObject.GetComponent<NumOp>();
+        machine.toggleOperator();
+    }
+
+    public void toggleLogicalSign()
+    {
+        LogOp machine = selectedMachine.gameObject.GetComponent<LogOp>();
+        machine.toggleSign();
+    }
+
     public void toggleDataType()
     {
         if (selectedMachine.type == MachineType.Variable)
@@ -448,7 +532,7 @@ public class ConfigComponent : MonoBehaviour
             if (currentMachine.type == MachineType.Belt) return;
 
             int currentOrder = currentMachine.order;
-            currentMachine.order = Math.Min(currentOrder + 1, 100);
+            currentMachine.order = Math.Min(currentOrder + 1, 30);
             n.orderDisplay.GetComponent<TextMeshPro>().text = ""+ currentMachine.order;
         }
     }
