@@ -184,8 +184,12 @@ public class ConnectorManager : MonoBehaviour
         Debug.Log("check " + d + " gate belt ans: " + ans);
         Debug.Log("1 Connecting to " + target.name + ": " + ans);
         Debug.Log("1 Connecting gate " + g.gateType + " to " + target.gateDict[d].gateType + ": " + ans);
+        
+        if (target.gateDict[d].gateType == GateType.None || g.gateType == GateType.None) {
+            ans = false;
+            }
 
-        return ans;
+            return ans;
     }
 
     public void updateAllChains()
@@ -258,7 +262,7 @@ public class ConnectorManager : MonoBehaviour
             {
                 Belt b = machineObj.GetComponent<Belt>();
                 b.inChain = false;
-                b.GenerateGate();
+                b.resetOrderAndDataType();
             }
         }
     }

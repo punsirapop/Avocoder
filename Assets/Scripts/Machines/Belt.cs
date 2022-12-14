@@ -18,6 +18,12 @@ public class Belt : Machine
         AssignGate(new Gate(GateType.Belt, Direction.South, dt), Direction.South);
     }
 
+    public void resetOrderAndDataType()
+    {
+        order = -1;
+        List<DataType> dt = new List<DataType>();
+    }
+
     public override void activate()
     {
         print("belt activated");
