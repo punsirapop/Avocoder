@@ -257,11 +257,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e53b3565f9e3e0b40a93105f9ee11a54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 5
+  type: 7
   myName: 0
   order: 1
-  entranceDataType: 
-  exitDataType: 
   gatePos:
   - {fileID: 5700022805367582197}
   - {fileID: 5521539279353561805}

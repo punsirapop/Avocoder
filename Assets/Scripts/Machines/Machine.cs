@@ -1,7 +1,6 @@
  using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
 public enum MachineType
 {
@@ -9,7 +8,8 @@ public enum MachineType
     Numeric,
     Comparison,
     Logical,
-    // Loop,
+    Conditional,
+    Loop,
     If,
     Function,
     Belt
@@ -46,43 +46,13 @@ public class Gate
     public GateType gateType;
     public List<DataType> dataTypeList;
     public Transform connection;
-    public int intData;
-    public float floatData;
-    public bool boolData;
-    public DataType currentDataType;
-    public Var onVar;
-    
-    public Gate(GateType gt, Direction d, List<DataType> dt, Var variable = null)
+
+    public Gate(GateType gt, Direction d, List<DataType> dt)
     {
         gateType = gt;
         direction = d;
         dataTypeList = dt;
         connection = null;
-        onVar = variable;
-    }
-
-    public void changeGateType(GateType newType)
-    {
-        gateType = newType;
-    }
-    
-    public void assignData(DataType dataType,int intData, float floatData, bool boolData)
-    {
-        currentDataType = dataType;
-        if (DataType.Int == dataType)
-            this.intData = intData;
-        else if (DataType.Float == dataType)
-            this.floatData = floatData;
-        else if (DataType.Bool == dataType)
-            this.boolData = boolData;
-    }
-
-    public DataType getData(out int intData, out float floatData, out bool boolData)
-    {
-        intData = this.intData;
-        floatData = this.floatData;
-        boolData = this.boolData;
-        return currentDataType;
     }
 }
 
@@ -98,13 +68,8 @@ abstract public class Machine : MonoBehaviour
 
     public Dictionary<Direction, Gate> gateDict = new Dictionary<Direction, Gate>();
 
-    public List<DataType> entranceDataType = new List<DataType>();
-    public List<DataType> exitDataType = new List<DataType>();
-
     [SerializeField] Transform[] gatePos;
     [SerializeField] Material[] gateMat;
-
-    public TextMeshPro centerDisplay;
 
     private void Awake()
     {
@@ -116,7 +81,6 @@ abstract public class Machine : MonoBehaviour
 
     public abstract void GenerateGate();
 
-    public abstract void activate();
     public void AssignGate(Gate g, Direction d)
     {
         gateDict[d] = g;
@@ -179,19 +143,6 @@ abstract public class Machine : MonoBehaviour
         gateDict = gateDictN;
     }
 
-    public Direction getExitGate()
-    {
-        foreach (var g in gateDict)
-        {
-            if (g.Value.gateType == GateType.Exit)
-            {
-                return g.Value.direction;
-            }
-        }
-        return Direction.None;
-
-    }
-
     /*
     public void Rotate(bool left)
     {
@@ -216,8 +167,6 @@ abstract public class Machine : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (type == MachineType.Belt) return;
-
         foreach (Transform g in gatePos)
         {
             g.gameObject.SetActive(false);
@@ -237,7 +186,7 @@ abstract public class Machine : MonoBehaviour
         
     }
 
-/*
+    /*
     public virtual void AssignGateDir(Gate g, Direction d)
     {
         if (gates.ContainsKey(d))
@@ -260,7 +209,7 @@ abstract public class Machine : MonoBehaviour
         {
             gates.Add(d, g);
         }
-    }*/
+    }
 
     public GateType GetGateTypeAtDir(Direction d)
     {
@@ -270,8 +219,9 @@ abstract public class Machine : MonoBehaviour
         }
         else
         {
-            return GateType.None;
+            AssignGate(new Gate(GateType.None), d);
+            return gateDict[d].gateType;
         }
     }
-
+    */
 }

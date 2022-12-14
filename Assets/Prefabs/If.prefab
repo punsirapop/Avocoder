@@ -257,11 +257,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29a3c045911b3fc4c8752645225949d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 4
+  type: 6
   myName: 0
   order: 1
-  entranceDataType: 
-  exitDataType: 
   gatePos:
   - {fileID: 5700022805367582197}
   - {fileID: 5521539279353561805}
@@ -270,7 +268,6 @@ MonoBehaviour:
   gateMat:
   - {fileID: 2100000, guid: 59d4aafab28a88b4c830bb16eb73ef44, type: 2}
   - {fileID: 2100000, guid: 99ec62ebbafc3004a831f20762d69cb7, type: 2}
-  ifSignalValidMachines: []
 --- !u!1 &3721680349828047567
 GameObject:
   m_ObjectHideFlags: 0

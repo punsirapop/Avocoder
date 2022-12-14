@@ -156,10 +156,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 756cd0b303796fc47b38e83a6ce2454d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 6
+  type: 8
   myName: 0
   order: 1
-  entranceDataType: 
-  exitDataType: 
   gatePos: []
   gateMat: []
