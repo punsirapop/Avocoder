@@ -33,7 +33,7 @@ public enum DataType
 
 public enum Direction
 {
-    None = -1,
+    // None = -1,
     North,
     East,
     South,
@@ -165,7 +165,7 @@ abstract public class Machine : MonoBehaviour
     }
     */
 
-    public virtual void Update()
+    protected virtual void Update()
     {
         foreach (Transform g in gatePos)
         {
