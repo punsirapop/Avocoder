@@ -11,7 +11,6 @@ public class MachineActivationManager : MonoBehaviour
     public static List<GameObject> activatedMachineList = new List<GameObject>();
     public int startOrder = 1;
 
-
     private void Awake()
     {
         if (Instance == null)
@@ -22,7 +21,7 @@ public class MachineActivationManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        addOrderManager();
+        addOrderManager(1);
     }
 
     // Update is called once per frame
@@ -37,34 +36,55 @@ public class MachineActivationManager : MonoBehaviour
     }
 
     // add when IF get activated
-    void addOrderManager()
+    void addOrderManager(int currentOrder)
     {
         // create orderManger and add to a list
+        OrderManager newOrderManager = new OrderManager(currentOrder);
+        allOrderManagerList.Add(newOrderManager);
     }
 
     // use a button or something to activate this function to start activating machines
-    void doCurrentOrder()
+    public void doCurrentOrder()
     {
         // loop through orderManager list and activate all of them *make sure to not activate same machine*
         // keep list of machine activated
         // make sure all is done
-        foreach (OrderManager orderManager in allOrderManagerList)
+        int index = 0;
+        while (index < allOrderManagerList.Count)
+        {
+            Debug.Log("Doing order manager " + index);
+            allOrderManagerList[index].activateCurrentOrder();
+            index++;
+        }
+        /*foreach (OrderManager orderManager in allOrderManagerList)
         {
             orderManager.activateCurrentOrder();
-        }
-        waitAllMachineDone();
+        }*/
+        //waitAllMachineDone();
         endOfOrderReset();
+        foreach (GameObject machineObj in allMachineList)
+        {
+            //PlaceObjectOnGrid.Instance.selectedMachineForConfig = machineObj.transform;
+            ConfigComponent.Instance.selectedMachine =  machineObj.GetComponent<Machine>();
+            ConfigComponent.Instance.updateConfigForSelectedMachine();
+        }
+
+
     }
 
-    public void waitAllMachineDone()
+    /*public void waitAllMachineDone()
     {
 
-    }
+    }*/
+
+    
 
     void endOfOrderReset()
     {
         // reset all the temp list used
-        activatedMachineList.Clear();
+        allOrderManagerList.Clear();
+        addOrderManager(1);
+
     }
 
     
@@ -110,7 +130,21 @@ public class MachineActivationManager : MonoBehaviour
 
         public void activateCurrentOrder()
         {
+            print("Doing order " + currentOrder);
             List<GameObject>  machinesToActivate = getMachinesWithCurrentOrder();
+
+            if (currentOrder > 30)
+            {
+                return;
+            }
+
+            if (machinesToActivate.Count == 0)
+            {
+                Debug.Log("No more machine to activate");
+                currentOrder++;
+                activateCurrentOrder();
+                return;
+            }
             // send signal to machine in current order
             foreach (GameObject machine in machinesToActivate)
             {
@@ -127,23 +161,75 @@ public class MachineActivationManager : MonoBehaviour
                     activatedMachineList.Add(machine);
                 }
             }
+            transferAllData();
+            activatedMachineList.Clear();
             currentOrder++;
+            activateCurrentOrder();
+        }
+
+        public void transferAllData()
+        {
+            foreach (Chain chain in ConnectorManager.chainsList)
+            {
+                chain.transferData();
+            }
         }
 
         public void activateMachine(GameObject machine)
         {
             // activate the machine
+            MachineType type = machine.GetComponent<Machine>().type;
+            if (type == MachineType.Comparison)
+            {
+                ComOp compareOpMachine = machine.GetComponent<ComOp>();
+                compareOpMachine.activate();
+            }
+            else if (type == MachineType.Logical) 
+            {
+                LogOp logicalOpMachine = machine.GetComponent<LogOp>();
+                logicalOpMachine.activate();
+            }
+            else if (type == MachineType.Numeric)
+            {
+                NumOp numericOpMachine = machine.GetComponent<NumOp>();
+                numericOpMachine.activate();
+            }
+            else if (type == MachineType.Variable)
+            {
+                Var variableMachine = machine.GetComponent<Var>();
+                variableMachine.activate();
+            }
+            else if (type == MachineType.Function)
+            {
+                Func functionMachine = machine.GetComponent<Func>();
+                functionMachine.activate();
+            }
+            else if (type == MachineType.Belt)
+            {
+                Belt beltMachine = machine.GetComponent<Belt>();
+                beltMachine.activate();
+            }
         }
 
         public void activateIFMachine(GameObject machine)
         {
             List<GameObject> nextMachinesToActivate = getMachinesWithNextOrder();
-            // if machine activated by IF is not in next order list
-            if (!nextMachinesToActivate.Contains(machine))
+            If ifMachine = machine.GetComponent<If>();
+            MachineType type = machine.GetComponent<Machine>().type;
+
+            if (type == MachineType.If)
             {
-                Instance.addOrderManager();
+                ifMachine.activate();
             }
-            // activate the IF machine
+
+            foreach (Machine targetMachines in ifMachine.ifSignalValidMachines)
+            {
+                // if machine queued to be activated by IF is not in next order list
+                if (!nextMachinesToActivate.Contains(targetMachines.gameObject))
+                {
+                    Instance.addOrderManager(currentOrder);
+                }
+            }
         }
     }
 }
